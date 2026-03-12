@@ -1,12 +1,17 @@
-import { Outlet } from 'react-router';
+import { Navigate, Outlet } from 'react-router';
+import { useAuth } from '@/features/auth/AuthContext';
+import { FullPageSpinner } from '@/components/ui/Spinner';
 
-// Phase 1: pass-through guards — real logic added in Phase 2
 export function ProtectedRoute() {
-  // TODO Phase 2: check auth state, redirect to /login if not authenticated
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <FullPageSpinner />;
+  if (!user) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
 export function AdminRoute() {
-  // TODO Phase 2: check user.role === 'Admin', redirect to / if not
+  const { user, isAdmin } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isAdmin()) return <Navigate to="/" replace />;
   return <Outlet />;
 }

@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router';
+import { useAuth } from '@/features/auth/AuthContext';
 
 interface NavItem {
   to: string;
   label: string;
   icon: string;
+  adminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -15,19 +17,23 @@ const navItems: NavItem[] = [
   { to: '/sale-invoices', label: 'Sale Invoices', icon: '🧾' },
   { to: '/purchase-invoices', label: 'Purchase Invoices', icon: '🛒' },
   { to: '/stock-movements', label: 'Stock Movements', icon: '📊' },
-  { to: '/users', label: 'Users', icon: '👤' },
+  { to: '/users', label: 'Users', icon: '👤', adminOnly: true },
 ];
 
 export function Sidebar() {
+  const { isAdmin } = useAuth();
+
+  const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin());
+
   return (
-    <aside className="flex flex-col w-64 min-h-screen bg-gray-900 text-gray-100">
+    <aside className="flex flex-col w-64 min-h-screen bg-gray-900 text-gray-100 shrink-0">
       <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-700">
         <span className="text-xl font-bold tracking-tight text-white">Gatejo</span>
         <span className="text-xs text-gray-400 mt-1">Inventory</span>
       </div>
       <nav className="flex-1 px-3 py-4">
         <ul className="space-y-1">
-          {navItems.map((item) => (
+          {visibleItems.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
