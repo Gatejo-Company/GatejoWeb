@@ -11,6 +11,7 @@ import { SaleInvoicesPage } from '@/pages/SaleInvoicesPage';
 import { PurchaseInvoicesPage } from '@/pages/PurchaseInvoicesPage';
 import { StockMovementsPage } from '@/pages/StockMovementsPage';
 import { UsersPage } from '@/pages/UsersPage';
+import { ProfilePage } from '@/pages/ProfilePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
           { path: 'sale-invoices', element: <SaleInvoicesPage /> },
           { path: 'purchase-invoices', element: <PurchaseInvoicesPage /> },
           { path: 'stock-movements', element: <StockMovementsPage /> },
+          { path: 'profile', element: <ProfilePage /> },
           {
             element: <AdminRoute />,
             children: [{ path: 'users', element: <UsersPage /> }],

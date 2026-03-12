@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { useAuth } from '@/features/auth/AuthContext';
 import { Button } from '@/components/ui/Button';
 
@@ -22,9 +23,9 @@ export function Topbar() {
             {user.name} <span className="text-gray-400">({user.role})</span>
           </span>
         )}
-        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold select-none">
+        <Link to="/profile" className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold select-none hover:bg-indigo-700 transition-colors" title="My Profile">
           {initials}
-        </div>
+        </Link>
         <Button variant="ghost" size="sm" onClick={() => { void logout(); }}>
           Logout
         </Button>
