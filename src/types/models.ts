@@ -55,6 +55,7 @@ export interface SaleInvoice {
   paidAt?: string;
   notes?: string;
   createdAt: string;
+  reversed: boolean;
   items: SaleLineItem[];
 }
 
