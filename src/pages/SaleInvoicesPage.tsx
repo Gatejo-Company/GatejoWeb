@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useSaleInvoices, useCreateSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
+import { useSaleInvoices, useReverseSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
 import { SaleInvoiceDetailModal } from '@/features/sale-invoices/SaleInvoiceDetailModal';
 import type { SaleInvoice } from '@/types/models';
@@ -31,23 +31,12 @@ export function SaleInvoicesPage() {
     paid: filterPaid === '' ? undefined : filterPaid === 'true',
   });
 
-  const createMutation = useCreateSaleInvoice();
+  const reverseMutation = useReverseSaleInvoice();
   const payMutation = usePaySaleInvoice();
 
   const handleReverse = (inv: SaleInvoice) => {
     if (!confirm(`¿Generar factura de anulación para la factura #${inv.id}?`)) return;
-    createMutation.mutate({
-      idReversedInvoice: inv.id,
-      date: new Date().toISOString().split('T')[0],
-      onCredit: inv.onCredit,
-      notes: `Anulación de factura #${inv.id}`,
-      reversed: true,
-      items: inv.items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-      })),
-    });
+    reverseMutation.mutate(inv.id);
   };
 
   const columns: Column<SaleInvoice>[] = [
@@ -78,27 +67,25 @@ export function SaleInvoicesPage() {
     } satisfies Column<SaleInvoice>,
     ...(isAdmin()
       ? [
-        {
-          key: '_actions',
-          header: 'Actions',
-          render: (inv: SaleInvoice) => (
-            <div className="flex gap-2">
-              {inv.onCredit && !inv.paidAt && (
-                <Button size="sm" variant="secondary" onClick={() => payMutation.mutate(inv.id)} isLoading={payMutation.isPending}>
-                  Mark Paid
-                </Button>
-              )}
-              {
-                !inv.reversed &&
-                <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={createMutation.isPending}>
-                  Anular
-                </Button>
-              }
-
-            </div>
-          ),
-        } satisfies Column<SaleInvoice>,
-      ]
+          {
+            key: '_actions',
+            header: 'Actions',
+            render: (inv: SaleInvoice) => (
+              <div className="flex gap-2">
+                {inv.onCredit && !inv.paidAt && (
+                  <Button size="sm" variant="secondary" onClick={() => payMutation.mutate(inv.id)} isLoading={payMutation.isPending}>
+                    Mark Paid
+                  </Button>
+                )}
+                {!inv.reversed && (
+                  <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={reverseMutation.isPending}>
+                    Anular
+                  </Button>
+                )}
+              </div>
+            ),
+          } satisfies Column<SaleInvoice>,
+        ]
       : []),
   ];
 

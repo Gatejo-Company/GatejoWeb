@@ -49,6 +49,11 @@ export const saleInvoicesApi = {
     await client.patch(`/api/sale-invoices/${id}/pay`);
   },
 
+  reverse: async (id: number): Promise<SaleInvoice> => {
+    const response = await client.post<SaleInvoice>(`/api/sale-invoices/${id}/reverse`);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await client.delete(`/api/sale-invoices/${id}`);
   },
