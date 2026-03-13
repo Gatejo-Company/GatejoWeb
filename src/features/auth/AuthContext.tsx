@@ -96,9 +96,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedRefreshToken = getRefreshToken();
 
     // Instant restore from stored access token (no API call needed)
+    let restoredFromToken = false;
     if (storedAccessToken) {
       const user = decodeJwtUser(storedAccessToken);
-      if (user) dispatch({ type: 'SET_USER', payload: user });
+      if (user) {
+        dispatch({ type: 'SET_USER', payload: user });
+        restoredFromToken = true;
+      }
     }
 
     if (storedRefreshToken) {
@@ -117,10 +121,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         })
         .catch(() => {
-          clearAuth();
-          dispatch({ type: 'CLEAR_USER' });
+          // Only clear auth if we couldn't restore the user from the stored access token.
+          // If we already have a user, let them stay logged in; the 401 interceptor will
+          // handle re-auth when the access token actually expires.
+          if (!restoredFromToken) {
+            clearAuth();
+            dispatch({ type: 'CLEAR_USER' });
+          }
         });
-    } else {
+    } else if (!restoredFromToken) {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, []);

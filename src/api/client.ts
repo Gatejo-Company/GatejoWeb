@@ -84,7 +84,10 @@ client.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Never intercept 401s from the refresh endpoint itself — let them propagate
+    const isRefreshRequest = originalRequest.url?.includes('/api/Auth/refresh');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
       const storedRefreshToken = getRefreshToken();
 
       if (!storedRefreshToken) {
@@ -109,8 +112,9 @@ client.interceptors.response.use(
         // Import here to avoid circular dependency
         const { authApi } = await import('./endpoints/auth');
         const data = await authApi.refresh(storedRefreshToken);
+        const inLocalStorage = !!localStorage.getItem('refreshToken');
         setAccessToken(data.token);
-        setRefreshToken(data.refreshToken);
+        setRefreshToken(data.refreshToken, inLocalStorage);
         processQueue(data.token);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return client(originalRequest);

@@ -1,4 +1,4 @@
-import { client } from '../client';
+import { client, getAccessToken } from '../client';
 
 export interface AuthTokenResponse {
   token: string;
@@ -25,7 +25,7 @@ export const authApi = {
 
   refresh: async (refreshToken: string): Promise<AuthTokenResponse> => {
     const response = await client.post<AuthTokenResponse>('/api/Auth/refresh', {
-      token: '',
+      token: getAccessToken() ?? '',
       refreshToken,
     });
     return response.data;
