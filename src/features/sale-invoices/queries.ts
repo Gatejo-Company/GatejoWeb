@@ -72,3 +72,15 @@ export function useDeleteSaleInvoice() {
     onError: () => toast.error('Failed to delete invoice'),
   });
 }
+
+export function useReverseSaleInvoice() {
+  const toast = useToast();
+  return useMutation({
+    mutationFn: (id: number) => saleInvoicesApi.reverse(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: saleInvoiceKeys.all });
+      toast.success('Factura de anulación generada');
+    },
+    onError: () => toast.error('Error al anular la factura'),
+  });
+}

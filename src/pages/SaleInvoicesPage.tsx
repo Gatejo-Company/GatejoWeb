@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useSaleInvoices, useDeleteSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
+import { useSaleInvoices, useReverseSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
+import { SaleInvoiceDetailModal } from '@/features/sale-invoices/SaleInvoiceDetailModal';
 import type { SaleInvoice } from '@/types/models';
 
 function formatDate(s: string) { return new Date(s).toLocaleDateString(); }
@@ -19,6 +20,7 @@ export function SaleInvoicesPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<SaleInvoice | null>(null);
   const [filterOnCredit, setFilterOnCredit] = useState('');
   const [filterPaid, setFilterPaid] = useState('');
 
@@ -29,11 +31,12 @@ export function SaleInvoicesPage() {
     paid: filterPaid === '' ? undefined : filterPaid === 'true',
   });
 
-  const deleteMutation = useDeleteSaleInvoice();
+  const reverseMutation = useReverseSaleInvoice();
   const payMutation = usePaySaleInvoice();
 
-  const handleDelete = (id: number) => {
-    if (confirm('Delete this invoice?')) deleteMutation.mutate(id);
+  const handleReverse = (inv: SaleInvoice) => {
+    if (!confirm(`¿Generar factura de anulación para la factura #${inv.id}?`)) return;
+    reverseMutation.mutate(inv.id);
   };
 
   const columns: Column<SaleInvoice>[] = [
@@ -53,6 +56,15 @@ export function SaleInvoicesPage() {
         return inv.paidAt ? <Badge variant="green">Paid</Badge> : <Badge variant="yellow">Credit Pending</Badge>;
       },
     },
+    {
+      key: '_detail',
+      header: '',
+      render: (inv: SaleInvoice) => (
+        <Button size="sm" variant="ghost" onClick={() => setSelectedInvoice(inv)}>
+          Ver detalle
+        </Button>
+      ),
+    } satisfies Column<SaleInvoice>,
     ...(isAdmin()
       ? [
           {
@@ -65,9 +77,11 @@ export function SaleInvoicesPage() {
                     Mark Paid
                   </Button>
                 )}
-                <Button size="sm" variant="danger" onClick={() => handleDelete(inv.id)} isLoading={deleteMutation.isPending}>
-                  Delete
-                </Button>
+                {!inv.reversed && (
+                  <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={reverseMutation.isPending}>
+                    Anular
+                  </Button>
+                )}
               </div>
             ),
           } satisfies Column<SaleInvoice>,
@@ -123,6 +137,9 @@ export function SaleInvoicesPage() {
       />
 
       {isFormOpen && <SaleInvoiceForm onClose={() => setIsFormOpen(false)} />}
+      {selectedInvoice && (
+        <SaleInvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+      )}
     </PageLayout>
   );
 }
