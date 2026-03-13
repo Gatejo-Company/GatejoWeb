@@ -13,6 +13,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [apiError, setApiError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const {
     register,
@@ -25,7 +26,7 @@ export function LoginForm() {
   const onSubmit = async (values: LoginFormValues) => {
     setApiError(null);
     try {
-      await login(values);
+      await login(values, rememberMe);
       await navigate('/');
     } catch (err) {
       const appError = err as AppError;
@@ -60,6 +61,19 @@ export function LoginForm() {
           {...register('password')}
         />
       </FormField>
+
+      <div className="flex items-center gap-2">
+        <input
+          id="rememberMe"
+          type="checkbox"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+        <label htmlFor="rememberMe" className="text-sm text-gray-600 select-none">
+          Recordarme
+        </label>
+      </div>
 
       <Button type="submit" isLoading={isSubmitting} className="w-full justify-center">
         Sign in

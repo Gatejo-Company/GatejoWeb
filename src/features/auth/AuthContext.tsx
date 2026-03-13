@@ -11,6 +11,7 @@ import {
   clearAuth,
   setRefreshToken,
   getRefreshToken,
+  getAccessToken,
 } from '@/api/client';
 import { authApi, type LoginPayload } from '@/api/endpoints/auth';
 
@@ -41,7 +42,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   isAdmin: () => boolean;
-  login: (credentials: LoginPayload) => Promise<void>;
+  login: (credentials: LoginPayload, rememberMe: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -89,36 +90,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // On mount: try to restore session via refresh token
+  // On mount: restore session instantly from sessionStorage, then refresh in background
   useEffect(() => {
+    const storedAccessToken = getAccessToken();
     const storedRefreshToken = getRefreshToken();
-    if (!storedRefreshToken) {
-      dispatch({ type: 'SET_LOADING', payload: false });
-      return;
+
+    // Instant restore from stored access token (no API call needed)
+    if (storedAccessToken) {
+      const user = decodeJwtUser(storedAccessToken);
+      if (user) dispatch({ type: 'SET_USER', payload: user });
     }
 
-    authApi
-      .refresh(storedRefreshToken)
-      .then((data) => {
-        setAccessToken(data.token);
-        setRefreshToken(data.refreshToken);
-        const user = decodeJwtUser(data.token);
-        if (user) {
-          dispatch({ type: 'SET_USER', payload: user });
-        } else {
+    if (storedRefreshToken) {
+      // Refresh in background to get fresh tokens
+      const inLocalStorage = !!localStorage.getItem('refreshToken');
+      authApi
+        .refresh(storedRefreshToken)
+        .then((data) => {
+          setAccessToken(data.token);
+          setRefreshToken(data.refreshToken, inLocalStorage);
+          const user = decodeJwtUser(data.token);
+          if (user) {
+            dispatch({ type: 'SET_USER', payload: user });
+          } else {
+            dispatch({ type: 'CLEAR_USER' });
+          }
+        })
+        .catch(() => {
+          clearAuth();
           dispatch({ type: 'CLEAR_USER' });
-        }
-      })
-      .catch(() => {
-        clearAuth();
-        dispatch({ type: 'CLEAR_USER' });
-      });
+        });
+    } else {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
   }, []);
 
-  const login = async (credentials: LoginPayload) => {
+  const login = async (credentials: LoginPayload, rememberMe: boolean) => {
     const data = await authApi.login(credentials);
     setAccessToken(data.token);
-    setRefreshToken(data.refreshToken);
+    setRefreshToken(data.refreshToken, rememberMe);
     const user = decodeJwtUser(data.token);
     if (user) {
       dispatch({ type: 'SET_USER', payload: user });

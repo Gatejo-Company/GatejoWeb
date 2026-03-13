@@ -1,15 +1,17 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { ApiResponse, AppError } from './types';
 
-// Access token stored only in memory — never in localStorage
-let accessToken: string | null = null;
+// Access token stored in sessionStorage — persists through page reloads, cleared on tab/browser close
+let accessToken: string | null = sessionStorage.getItem('accessToken');
 
 export function setAccessToken(token: string) {
   accessToken = token;
+  sessionStorage.setItem('accessToken', token);
 }
 
 export function clearAccessToken() {
   accessToken = null;
+  sessionStorage.removeItem('accessToken');
 }
 
 export function getAccessToken() {
@@ -17,15 +19,22 @@ export function getAccessToken() {
 }
 
 export function getRefreshToken() {
-  return localStorage.getItem('refreshToken');
+  return localStorage.getItem('refreshToken') ?? sessionStorage.getItem('refreshToken');
 }
 
-export function setRefreshToken(token: string) {
-  localStorage.setItem('refreshToken', token);
+export function setRefreshToken(token: string, remember: boolean) {
+  if (remember) {
+    localStorage.setItem('refreshToken', token);
+    sessionStorage.removeItem('refreshToken');
+  } else {
+    sessionStorage.setItem('refreshToken', token);
+    localStorage.removeItem('refreshToken');
+  }
 }
 
 export function clearRefreshToken() {
   localStorage.removeItem('refreshToken');
+  sessionStorage.removeItem('refreshToken');
 }
 
 export function clearAuth() {
