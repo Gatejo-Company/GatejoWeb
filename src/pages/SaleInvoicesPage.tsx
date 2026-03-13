@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useSaleInvoices, useDeleteSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
+import { useSaleInvoices, useCreateSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
 import { SaleInvoiceDetailModal } from '@/features/sale-invoices/SaleInvoiceDetailModal';
 import type { SaleInvoice } from '@/types/models';
@@ -31,11 +31,21 @@ export function SaleInvoicesPage() {
     paid: filterPaid === '' ? undefined : filterPaid === 'true',
   });
 
-  const deleteMutation = useDeleteSaleInvoice();
+  const createMutation = useCreateSaleInvoice();
   const payMutation = usePaySaleInvoice();
 
-  const handleDelete = (id: number) => {
-    if (confirm('Delete this invoice?')) deleteMutation.mutate(id);
+  const handleReverse = (inv: SaleInvoice) => {
+    if (!confirm(`¿Generar factura de anulación para la factura #${inv.id}?`)) return;
+    createMutation.mutate({
+      date: new Date().toISOString().split('T')[0],
+      onCredit: inv.onCredit,
+      notes: `Anulación de factura #${inv.id}`,
+      items: inv.items.map((item) => ({
+        productId: item.productId,
+        quantity: -item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+    });
   };
 
   const columns: Column<SaleInvoice>[] = [
@@ -76,8 +86,8 @@ export function SaleInvoicesPage() {
                     Mark Paid
                   </Button>
                 )}
-                <Button size="sm" variant="danger" onClick={() => handleDelete(inv.id)} isLoading={deleteMutation.isPending}>
-                  Delete
+                <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={createMutation.isPending}>
+                  Anular
                 </Button>
               </div>
             ),
