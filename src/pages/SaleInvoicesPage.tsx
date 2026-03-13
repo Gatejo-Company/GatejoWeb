@@ -8,6 +8,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useSaleInvoices, useDeleteSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
+import { SaleInvoiceDetailModal } from '@/features/sale-invoices/SaleInvoiceDetailModal';
 import type { SaleInvoice } from '@/types/models';
 
 function formatDate(s: string) { return new Date(s).toLocaleDateString(); }
@@ -19,6 +20,7 @@ export function SaleInvoicesPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<SaleInvoice | null>(null);
   const [filterOnCredit, setFilterOnCredit] = useState('');
   const [filterPaid, setFilterPaid] = useState('');
 
@@ -53,6 +55,15 @@ export function SaleInvoicesPage() {
         return inv.paidAt ? <Badge variant="green">Paid</Badge> : <Badge variant="yellow">Credit Pending</Badge>;
       },
     },
+    {
+      key: '_detail',
+      header: '',
+      render: (inv: SaleInvoice) => (
+        <Button size="sm" variant="ghost" onClick={() => setSelectedInvoice(inv)}>
+          Ver detalle
+        </Button>
+      ),
+    } satisfies Column<SaleInvoice>,
     ...(isAdmin()
       ? [
           {
@@ -123,6 +134,9 @@ export function SaleInvoicesPage() {
       />
 
       {isFormOpen && <SaleInvoiceForm onClose={() => setIsFormOpen(false)} />}
+      {selectedInvoice && (
+        <SaleInvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+      )}
     </PageLayout>
   );
 }
