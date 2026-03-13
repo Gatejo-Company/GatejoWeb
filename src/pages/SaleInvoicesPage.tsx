@@ -40,6 +40,7 @@ export function SaleInvoicesPage() {
       date: new Date().toISOString().split('T')[0],
       onCredit: inv.onCredit,
       notes: `Anulación de factura #${inv.id}`,
+      reversed: true,
       items: inv.items.map((item) => ({
         productId: item.productId,
         quantity: -item.quantity,

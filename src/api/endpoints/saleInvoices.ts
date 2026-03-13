@@ -19,6 +19,7 @@ export interface CreateSaleInvoiceRequest {
   date: string;
   onCredit?: boolean;
   notes?: string;
+  reversed?: boolean;
   items: SaleItemRequest[];
 }
 
