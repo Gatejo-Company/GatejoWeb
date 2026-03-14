@@ -47,7 +47,6 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           error={!!errors.email}
-          value={import.meta.env.DEV ? import.meta.env.VITE_DEFAULT_EMAIL : ""}
           {...register('email')}
         />
       </FormField>
@@ -58,7 +57,6 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           error={!!errors.password}
-          value={import.meta.env.DEV ? import.meta.env.VITE_DEFAULT_PASSWORD : ""}
           {...register('password')}
         />
       </FormField>
