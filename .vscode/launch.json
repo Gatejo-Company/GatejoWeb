@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug app in Docker",
+      "configurations": [
+        "Attach to Vite (Docker)",
+        "Open Chrome against Vite"
+      ],
+      "preLaunchTask": "docker:up-debug"
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Attach to Vite (Docker)",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "timeout": 120000
+    },
+    {
+      "name": "Open Chrome against Vite",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+services:
+  gatejoweb-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    container_name: gatejoweb-debug
+    ports:
+      - "5173:5173"
+      - "9229:9229"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - .:/app
+      - /app/node_modules

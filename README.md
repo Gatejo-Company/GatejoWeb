@@ -73,3 +73,33 @@ export default defineConfig([
   },
 ])
 ```
+
+## Debug con VSCode + Docker
+
+Este proyecto incluye una configuración para debug dentro de Docker.
+
+### 1) Levantar contenedor de debug
+
+```bash
+docker compose -f docker-compose.debug.yml up --build -d
+```
+
+Esto expone:
+
+- `http://localhost:5173` para la app Vite
+- `localhost:9229` para el inspector de Node (Vite)
+
+### 2) Iniciar debug desde VSCode
+
+1. Abre la vista **Run and Debug**.
+2. Ejecuta el perfil **Debug app in Docker**.
+3. VSCode va a:
+   - levantar el contenedor (`docker:up-debug`),
+   - adjuntar el depurador Node al puerto `9229`,
+   - abrir Chrome en `http://localhost:5173`.
+
+### 3) Detener contenedor
+
+```bash
+docker compose -f docker-compose.debug.yml down
+```
