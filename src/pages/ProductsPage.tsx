@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
@@ -21,6 +22,7 @@ export function ProductsPage() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading } = useProducts({
     page: pagination.page,
@@ -31,11 +33,7 @@ export function ProductsPage() {
   const deleteMutation = useDeleteProduct();
   const patchActiveMutation = usePatchProductActive();
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Eliminar este producto?')) {
-      void deleteMutation.mutate(id);
-    }
-  };
+  const handleDelete = (id: number) => setDeletingId(id);
 
   const handleToggleActive = (product: Product) => {
     void patchActiveMutation.mutate({ id: product.id, active: !product.active });
@@ -182,6 +180,15 @@ export function ProductsPage() {
       {isFormOpen && (
         <ProductForm editId={editingId} onClose={handleCloseForm} />
       )}
+
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar producto"
+        message="¿Estás seguro de que deseas eliminar este producto?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) void deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }

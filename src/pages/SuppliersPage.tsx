@@ -6,6 +6,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -34,6 +35,7 @@ export function SuppliersPage() {
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Supplier | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading } = useSuppliers({ page: pagination.page, pageSize: pagination.pageSize });
   const createMutation = useCreateSupplier();
@@ -65,9 +67,7 @@ export function SuppliersPage() {
     closeForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Eliminar este proveedor?')) deleteMutation.mutate(id);
-  };
+  const handleDelete = (id: number) => setDeletingId(id);
 
   const adminColumns: Column<Supplier>[] = isAdmin()
     ? [
@@ -115,6 +115,15 @@ export function SuppliersPage() {
           </form>
         </Modal>
       )}
+
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar proveedor"
+        message="¿Estás seguro de que deseas eliminar este proveedor?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }

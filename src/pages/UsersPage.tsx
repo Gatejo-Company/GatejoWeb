@@ -7,6 +7,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -88,6 +89,7 @@ export function UsersPage() {
   const { user: currentUser } = useAuth();
   const pagination = usePagination();
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const toast = useToast();
 
   const { data, isLoading } = useQuery({
@@ -136,7 +138,7 @@ export function UsersPage() {
             <Button
               size="sm"
               variant="danger"
-              onClick={() => { if (confirm('¿Eliminar este usuario?')) deleteMutation.mutate(u.id); }}
+              onClick={() => setDeletingId(u.id)}
               isLoading={deleteMutation.isPending}
             >
               Eliminar
@@ -152,6 +154,14 @@ export function UsersPage() {
       <DataTable columns={columns} data={data?.items ?? []} isLoading={isLoading} keyExtractor={(u) => u.id} emptyMessage="No se encontraron usuarios." />
       <Pagination page={pagination.page} pageSize={pagination.pageSize} totalPages={data?.totalPages ?? 0} totalCount={data?.totalCount ?? 0} onPageChange={pagination.setPage} />
       {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} />}
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar usuario"
+        message="¿Estás seguro de que deseas eliminar este usuario?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }

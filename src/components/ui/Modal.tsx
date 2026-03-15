@@ -28,23 +28,18 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
     }
   }, [isOpen]);
 
+  // Prevent closing on backdrop click or Escape key
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const handleClose = () => onClose();
-    dialog.addEventListener('close', handleClose);
-    return () => dialog.removeEventListener('close', handleClose);
-  }, [onClose]);
-
-  // Close on backdrop click
-  const handleClick = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === dialogRef.current) onClose();
-  };
+    const preventDefault = (e: Event) => e.preventDefault();
+    dialog.addEventListener('cancel', preventDefault);
+    return () => dialog.removeEventListener('cancel', preventDefault);
+  }, []);
 
   return (
     <dialog
       ref={dialogRef}
-      onClick={handleClick}
       className={`w-full ${maxWidthClasses[maxWidth]} rounded-xl p-0 shadow-xl backdrop:bg-black/40 open:animate-none m-auto`}
     >
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">

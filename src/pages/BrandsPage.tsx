@@ -6,6 +6,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -33,6 +34,7 @@ export function BrandsPage() {
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Brand | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading } = useBrands({ page: pagination.page, pageSize: pagination.pageSize });
   const createMutation = useCreateBrand();
@@ -59,9 +61,7 @@ export function BrandsPage() {
     closeForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Eliminar esta marca?')) deleteMutation.mutate(id);
-  };
+  const handleDelete = (id: number) => setDeletingId(id);
 
   const adminColumns: Column<Brand>[] = isAdmin()
     ? [
@@ -98,6 +98,15 @@ export function BrandsPage() {
           </form>
         </Modal>
       )}
+
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar marca"
+        message="¿Estás seguro de que deseas eliminar esta marca?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }
