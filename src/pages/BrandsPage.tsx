@@ -15,7 +15,7 @@ import { useBrands, useCreateBrand, useUpdateBrand, useDeleteBrand } from '@/fea
 import type { Brand } from '@/types/models';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, 'El nombre es requerido').max(100),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -25,7 +25,7 @@ const columns: Column<Brand>[] = [
     header: 'ID',
     render: (b) => <span className="text-gray-400 font-mono text-xs">#{b.id}</span>,
   },
-  { key: 'name', header: 'Name', render: (b) => <span className="font-medium">{b.name}</span> },
+  { key: 'name', header: 'Nombre', render: (b) => <span className="font-medium">{b.name}</span> },
 ];
 
 export function BrandsPage() {
@@ -60,18 +60,18 @@ export function BrandsPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this brand?')) deleteMutation.mutate(id);
+    if (confirm('¿Eliminar esta marca?')) deleteMutation.mutate(id);
   };
 
   const adminColumns: Column<Brand>[] = isAdmin()
     ? [
         {
           key: '_actions',
-          header: 'Actions',
+          header: 'Acciones',
           render: (item) => (
             <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Edit</Button>
-              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Delete</Button>
+              <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Editar</Button>
+              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
             </div>
           ),
         },
@@ -81,19 +81,19 @@ export function BrandsPage() {
   const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
 
   return (
-    <PageLayout title="Brands" action={isAdmin() ? <Button onClick={openCreate}>+ New Brand</Button> : undefined}>
-      <DataTable columns={[...columns, ...adminColumns]} data={data?.items ?? []} isLoading={isLoading} keyExtractor={(b) => b.id} emptyMessage="No brands found." />
+    <PageLayout title="Marcas" action={isAdmin() ? <Button onClick={openCreate}>+ Nueva Marca</Button> : undefined}>
+      <DataTable columns={[...columns, ...adminColumns]} data={data?.items ?? []} isLoading={isLoading} keyExtractor={(b) => b.id} emptyMessage="No se encontraron marcas." />
       <Pagination page={pagination.page} pageSize={pagination.pageSize} totalPages={data?.totalPages ?? 0} totalCount={data?.totalCount ?? 0} onPageChange={pagination.setPage} />
 
       {isFormOpen && (
-        <Modal isOpen onClose={closeForm} title={editingItem ? 'Edit Brand' : 'New Brand'}>
+        <Modal isOpen onClose={closeForm} title={editingItem ? 'Editar Marca' : 'Nueva Marca'}>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-            <FormField label="Name" htmlFor="brand-name" error={errors.name?.message} required>
+            <FormField label="Nombre" htmlFor="brand-name" error={errors.name?.message} required>
               <Input id="brand-name" error={!!errors.name} {...register('name')} />
             </FormField>
             <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={closeForm}>Cancel</Button>
-              <Button type="submit" isLoading={isPending}>{editingItem ? 'Save Changes' : 'Create'}</Button>
+              <Button type="button" variant="secondary" onClick={closeForm}>Cancelar</Button>
+              <Button type="submit" isLoading={isPending}>{editingItem ? 'Guardar Cambios' : 'Crear'}</Button>
             </div>
           </form>
         </Modal>

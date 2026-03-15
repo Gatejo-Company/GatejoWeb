@@ -20,7 +20,7 @@ import {
 import type { Category } from '@/types/models';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, 'El nombre es requerido').max(100),
   description: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -31,10 +31,10 @@ const columns: Column<Category>[] = [
     header: 'ID',
     render: (c) => <span className="text-gray-400 font-mono text-xs">#{c.id}</span>,
   },
-  { key: 'name', header: 'Name', render: (c) => <span className="font-medium">{c.name}</span> },
+  { key: 'name', header: 'Nombre', render: (c) => <span className="font-medium">{c.name}</span> },
   {
     key: 'description',
-    header: 'Description',
+    header: 'Descripción',
     render: (c) => <span className="text-gray-500">{c.description ?? '—'}</span>,
   },
 ];
@@ -88,18 +88,18 @@ export function CategoriesPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this category?')) deleteMutation.mutate(id);
+    if (confirm('¿Eliminar esta categoría?')) deleteMutation.mutate(id);
   };
 
   const adminColumns: Column<Category>[] = isAdmin()
     ? [
         {
           key: '_actions',
-          header: 'Actions',
+          header: 'Acciones',
           render: (item) => (
             <div className="flex gap-2">
               <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>
-                Edit
+                Editar
               </Button>
               <Button
                 size="sm"
@@ -107,7 +107,7 @@ export function CategoriesPage() {
                 onClick={() => handleDelete(item.id)}
                 isLoading={deleteMutation.isPending}
               >
-                Delete
+                Eliminar
               </Button>
             </div>
           ),
@@ -119,15 +119,15 @@ export function CategoriesPage() {
 
   return (
     <PageLayout
-      title="Categories"
-      action={isAdmin() ? <Button onClick={openCreate}>+ New Category</Button> : undefined}
+      title="Categorías"
+      action={isAdmin() ? <Button onClick={openCreate}>+ Nueva Categoría</Button> : undefined}
     >
       <DataTable
         columns={[...columns, ...adminColumns]}
         data={data?.items ?? []}
         isLoading={isLoading}
         keyExtractor={(c) => c.id}
-        emptyMessage="No categories found."
+        emptyMessage="No se encontraron categorías."
       />
       <Pagination
         page={pagination.page}
@@ -138,20 +138,20 @@ export function CategoriesPage() {
       />
 
       {isFormOpen && (
-        <Modal isOpen onClose={closeForm} title={editingItem ? 'Edit Category' : 'New Category'}>
+        <Modal isOpen onClose={closeForm} title={editingItem ? 'Editar Categoría' : 'Nueva Categoría'}>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-            <FormField label="Name" htmlFor="cat-name" error={errors.name?.message} required>
+            <FormField label="Nombre" htmlFor="cat-name" error={errors.name?.message} required>
               <Input id="cat-name" error={!!errors.name} {...register('name')} />
             </FormField>
-            <FormField label="Description" htmlFor="cat-description">
+            <FormField label="Descripción" htmlFor="cat-description">
               <Input id="cat-description" {...register('description')} />
             </FormField>
             <div className="flex justify-end gap-3 pt-2">
               <Button type="button" variant="secondary" onClick={closeForm}>
-                Cancel
+                Cancelar
               </Button>
               <Button type="submit" isLoading={isPending}>
-                {editingItem ? 'Save Changes' : 'Create'}
+                {editingItem ? 'Guardar Cambios' : 'Crear'}
               </Button>
             </div>
           </form>

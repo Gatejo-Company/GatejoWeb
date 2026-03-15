@@ -21,7 +21,7 @@ export function Pagination({
   return (
     <div className="flex items-center justify-between px-1 py-3 text-sm text-gray-600">
       <span>
-        {totalCount === 0 ? 'No results' : `Showing ${from}–${to} of ${totalCount}`}
+        {totalCount === 0 ? 'Sin resultados' : `Mostrando ${from}–${to} de ${totalCount}`}
       </span>
       <div className="flex items-center gap-3">
         {onPageSizeChange && (
@@ -35,7 +35,7 @@ export function Pagination({
           >
             {[10, 20, 50].map((s) => (
               <option key={s} value={s}>
-                {s} / page
+                {s} / pág.
               </option>
             ))}
           </select>

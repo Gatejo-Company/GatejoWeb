@@ -27,7 +27,7 @@ export function RecentSalesTable({ invoices, isLoading }: RecentSalesTableProps)
   }
 
   if (invoices.length === 0) {
-    return <p className="text-sm text-gray-400 mt-4">No sales yet.</p>;
+    return <p className="text-sm text-gray-400 mt-4">Sin ventas aún.</p>;
   }
 
   return (
@@ -35,9 +35,9 @@ export function RecentSalesTable({ invoices, isLoading }: RecentSalesTableProps)
       <thead>
         <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
           <th className="pb-2 font-medium">ID</th>
-          <th className="pb-2 font-medium">Date</th>
+          <th className="pb-2 font-medium">Fecha</th>
           <th className="pb-2 font-medium">Total</th>
-          <th className="pb-2 font-medium">Status</th>
+          <th className="pb-2 font-medium">Estado</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-50">
@@ -56,12 +56,12 @@ export function RecentSalesTable({ invoices, isLoading }: RecentSalesTableProps)
             <td className="py-2">
               {inv.onCredit ? (
                 inv.paidAt ? (
-                  <Badge variant="green">Paid</Badge>
+                  <Badge variant="green">Pagado</Badge>
                 ) : (
-                  <Badge variant="yellow">Credit</Badge>
+                  <Badge variant="yellow">Crédito</Badge>
                 )
               ) : (
-                <Badge variant="green">Cash</Badge>
+                <Badge variant="green">Contado</Badge>
               )}
             </td>
           </tr>

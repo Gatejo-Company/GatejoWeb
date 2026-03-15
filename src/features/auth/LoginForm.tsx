@@ -29,7 +29,7 @@ export function LoginForm() {
       await navigate('/');
     } catch (err) {
       const appError = err as AppError;
-      setApiError(appError?.detail ?? appError?.title ?? 'Login failed. Please try again.');
+      setApiError(appError?.detail ?? appError?.title ?? 'Error al iniciar sesión. Por favor, intenta de nuevo.');
     }
   };
 
@@ -41,7 +41,7 @@ export function LoginForm() {
         </div>
       )}
 
-      <FormField label="Email" htmlFor="email" error={errors.email?.message} required>
+      <FormField label="Correo electrónico" htmlFor="email" error={errors.email?.message} required>
         <Input
           id="email"
           type="email"
@@ -51,7 +51,7 @@ export function LoginForm() {
         />
       </FormField>
 
-      <FormField label="Password" htmlFor="password" error={errors.password?.message} required>
+      <FormField label="Contraseña" htmlFor="password" error={errors.password?.message} required>
         <Input
           id="password"
           type="password"
@@ -62,7 +62,7 @@ export function LoginForm() {
       </FormField>
 
       <Button type="submit" isLoading={isSubmitting} className="w-full justify-center">
-        Sign in
+        Iniciar sesión
       </Button>
     </form>
   );

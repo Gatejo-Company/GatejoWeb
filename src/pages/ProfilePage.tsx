@@ -12,8 +12,8 @@ import { useToast } from '@/components/ui/Toast';
 import type { AppError } from '@/api/types';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
-  email: z.string().email('Invalid email'),
+  name: z.string().min(1, 'El nombre es requerido').max(200),
+  email: z.string().email('Correo electrónico inválido'),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -33,8 +33,8 @@ export function ProfilePage() {
       if (!user || !userData) throw new Error('Not loaded');
       return usersApi.update(user.id, { name: values.name, email: values.email, roleId: userData.roleId });
     },
-    onSuccess: () => toast.success('Profile updated'),
-    onError: () => toast.error('Failed to update profile'),
+    onSuccess: () => toast.success('Perfil actualizado'),
+    onError: () => toast.error('Error al actualizar el perfil'),
   });
 
   const {
@@ -50,28 +50,28 @@ export function ProfilePage() {
       await updateMutation.mutateAsync(values);
     } catch (err) {
       const appError = err as AppError;
-      setError('root', { message: appError?.detail ?? 'Failed to update profile' });
+      setError('root', { message: appError?.detail ?? 'Error al actualizar el perfil' });
     }
   };
 
   return (
-    <PageLayout title="My Profile">
+    <PageLayout title="Mi Perfil">
       <div className="max-w-lg">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="mb-4 pb-4 border-b border-gray-100">
-            <p className="text-sm text-gray-500">Role: <span className="font-medium text-gray-700">{user?.role}</span></p>
+            <p className="text-sm text-gray-500">Rol: <span className="font-medium text-gray-700">{user?.role}</span></p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
             {errors.root && <div className="px-4 py-3 rounded bg-red-50 border border-red-200 text-sm text-red-700">{errors.root.message}</div>}
-            <FormField label="Name" htmlFor="prof-name" error={errors.name?.message} required>
+            <FormField label="Nombre" htmlFor="prof-name" error={errors.name?.message} required>
               <Input id="prof-name" error={!!errors.name} {...register('name')} />
             </FormField>
-            <FormField label="Email" htmlFor="prof-email" error={errors.email?.message} required>
+            <FormField label="Correo electrónico" htmlFor="prof-email" error={errors.email?.message} required>
               <Input id="prof-email" type="email" error={!!errors.email} {...register('email')} />
             </FormField>
             <div className="flex justify-end pt-2">
               <Button type="submit" isLoading={updateMutation.isPending || isSubmitting} disabled={!userData}>
-                Save Changes
+                Guardar Cambios
               </Button>
             </div>
           </form>

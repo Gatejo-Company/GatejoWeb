@@ -21,7 +21,7 @@ type FormValues = CreateProductFormValues | UpdateProductFormValues;
 
 function extractApiError(error: unknown): string {
   const appError = error as AppError;
-  return appError?.detail ?? appError?.title ?? 'An error occurred';
+  return appError?.detail ?? appError?.title ?? 'Ocurrió un error';
 }
 
 export function ProductForm({ editId, onClose }: ProductFormProps) {
@@ -91,7 +91,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
     <Modal
       isOpen
       onClose={onClose}
-      title={isEditing ? 'Edit Product' : 'New Product'}
+      title={isEditing ? 'Editar Producto' : 'Nuevo Producto'}
       maxWidth="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -101,35 +101,35 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
           </div>
         )}
 
-        <FormField label="Name" htmlFor="name" error={errors.name?.message} required>
+        <FormField label="Nombre" htmlFor="name" error={errors.name?.message} required>
           <Input id="name" error={!!errors.name} {...register('name')} />
         </FormField>
 
-        <FormField label="Description" htmlFor="description" error={errors.description?.message}>
+        <FormField label="Descripción" htmlFor="description" error={errors.description?.message}>
           <Input id="description" {...register('description')} />
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Category" htmlFor="categoryId" error={errors.categoryId?.message} required>
+          <FormField label="Categoría" htmlFor="categoryId" error={errors.categoryId?.message} required>
             <select
               id="categoryId"
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
               {...register('categoryId', { valueAsNumber: true })}
             >
-              <option value="">Select category</option>
+              <option value="">Seleccionar categoría</option>
               {categories.data?.items.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </FormField>
 
-          <FormField label="Brand" htmlFor="brandId" error={errors.brandId?.message} required>
+          <FormField label="Marca" htmlFor="brandId" error={errors.brandId?.message} required>
             <select
               id="brandId"
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
               {...register('brandId', { valueAsNumber: true })}
             >
-              <option value="">Select brand</option>
+              <option value="">Seleccionar marca</option>
               {brands.data?.items.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
@@ -139,7 +139,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           {!isEditing && (
-            <FormField label="Price" htmlFor="price" error={(errors as { price?: { message?: string } }).price?.message} required>
+            <FormField label="Precio" htmlFor="price" error={(errors as { price?: { message?: string } }).price?.message} required>
               <Input
                 id="price"
                 type="number"
@@ -151,7 +151,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
             </FormField>
           )}
 
-          <FormField label="Min Stock" htmlFor="minStock" error={errors.minStock?.message}>
+          <FormField label="Stock Mínimo" htmlFor="minStock" error={errors.minStock?.message}>
             <Input
               id="minStock"
               type="number"
@@ -164,10 +164,10 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" isLoading={isPending}>
-            {isEditing ? 'Save Changes' : 'Create Product'}
+            {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
           </Button>
         </div>
       </form>

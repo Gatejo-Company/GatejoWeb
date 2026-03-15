@@ -31,7 +31,7 @@ export function DataTable<T>({
   columns,
   data,
   isLoading = false,
-  emptyMessage = 'No items found.',
+  emptyMessage = 'No se encontraron elementos.',
   keyExtractor,
 }: DataTableProps<T>) {
   return (

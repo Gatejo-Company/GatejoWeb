@@ -15,18 +15,18 @@ import { useSuppliers, useCreateSupplier, useUpdateSupplier, useDeleteSupplier }
 import type { Supplier } from '@/types/models';
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
+  name: z.string().min(1, 'El nombre es requerido').max(200),
   phone: z.string().optional(),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  email: z.string().email('Correo electrónico inválido').optional().or(z.literal('')),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
 const columns: Column<Supplier>[] = [
   { key: 'id', header: 'ID', render: (s) => <span className="text-gray-400 font-mono text-xs">#{s.id}</span> },
-  { key: 'name', header: 'Name', render: (s) => <span className="font-medium">{s.name}</span> },
-  { key: 'phone', header: 'Phone', render: (s) => <span className="text-gray-500">{s.phone ?? '—'}</span> },
-  { key: 'email', header: 'Email', render: (s) => <span className="text-gray-500">{s.email ?? '—'}</span> },
+  { key: 'name', header: 'Nombre', render: (s) => <span className="font-medium">{s.name}</span> },
+  { key: 'phone', header: 'Teléfono', render: (s) => <span className="text-gray-500">{s.phone ?? '—'}</span> },
+  { key: 'email', header: 'Correo', render: (s) => <span className="text-gray-500">{s.email ?? '—'}</span> },
 ];
 
 export function SuppliersPage() {
@@ -66,18 +66,18 @@ export function SuppliersPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this supplier?')) deleteMutation.mutate(id);
+    if (confirm('¿Eliminar este proveedor?')) deleteMutation.mutate(id);
   };
 
   const adminColumns: Column<Supplier>[] = isAdmin()
     ? [
         {
           key: '_actions',
-          header: 'Actions',
+          header: 'Acciones',
           render: (item) => (
             <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Edit</Button>
-              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Delete</Button>
+              <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Editar</Button>
+              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
             </div>
           ),
         },
@@ -87,30 +87,30 @@ export function SuppliersPage() {
   const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
 
   return (
-    <PageLayout title="Suppliers" action={isAdmin() ? <Button onClick={openCreate}>+ New Supplier</Button> : undefined}>
-      <DataTable columns={[...columns, ...adminColumns]} data={data?.items ?? []} isLoading={isLoading} keyExtractor={(s) => s.id} emptyMessage="No suppliers found." />
+    <PageLayout title="Proveedores" action={isAdmin() ? <Button onClick={openCreate}>+ Nuevo Proveedor</Button> : undefined}>
+      <DataTable columns={[...columns, ...adminColumns]} data={data?.items ?? []} isLoading={isLoading} keyExtractor={(s) => s.id} emptyMessage="No se encontraron proveedores." />
       <Pagination page={pagination.page} pageSize={pagination.pageSize} totalPages={data?.totalPages ?? 0} totalCount={data?.totalCount ?? 0} onPageChange={pagination.setPage} />
 
       {isFormOpen && (
-        <Modal isOpen onClose={closeForm} title={editingItem ? 'Edit Supplier' : 'New Supplier'} maxWidth="lg">
+        <Modal isOpen onClose={closeForm} title={editingItem ? 'Editar Proveedor' : 'Nuevo Proveedor'} maxWidth="lg">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-            <FormField label="Name" htmlFor="sup-name" error={errors.name?.message} required>
+            <FormField label="Nombre" htmlFor="sup-name" error={errors.name?.message} required>
               <Input id="sup-name" error={!!errors.name} {...register('name')} />
             </FormField>
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Phone" htmlFor="sup-phone" error={errors.phone?.message}>
+              <FormField label="Teléfono" htmlFor="sup-phone" error={errors.phone?.message}>
                 <Input id="sup-phone" type="tel" {...register('phone')} />
               </FormField>
-              <FormField label="Email" htmlFor="sup-email" error={errors.email?.message}>
+              <FormField label="Correo electrónico" htmlFor="sup-email" error={errors.email?.message}>
                 <Input id="sup-email" type="email" {...register('email')} />
               </FormField>
             </div>
-            <FormField label="Notes" htmlFor="sup-notes">
+            <FormField label="Notas" htmlFor="sup-notes">
               <Input id="sup-notes" {...register('notes')} />
             </FormField>
             <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={closeForm}>Cancel</Button>
-              <Button type="submit" isLoading={isPending}>{editingItem ? 'Save Changes' : 'Create'}</Button>
+              <Button type="button" variant="secondary" onClick={closeForm}>Cancelar</Button>
+              <Button type="submit" isLoading={isPending}>{editingItem ? 'Guardar Cambios' : 'Crear'}</Button>
             </div>
           </form>
         </Modal>

@@ -41,19 +41,19 @@ export function SaleInvoicesPage() {
 
   const columns: Column<SaleInvoice>[] = [
     { key: 'id', header: 'ID', render: (inv) => <span className="font-mono text-xs text-gray-400">#{inv.id}</span> },
-    { key: 'date', header: 'Date', render: (inv) => formatDate(inv.date) },
+    { key: 'date', header: 'Fecha', render: (inv) => formatDate(inv.date) },
     {
       key: 'items',
-      header: 'Items',
-      render: (inv) => <span className="text-gray-500">{inv.items?.length ?? 0} item(s)</span>,
+      header: 'Artículos',
+      render: (inv) => <span className="text-gray-500">{inv.items?.length ?? 0} artículo(s)</span>,
     },
     { key: 'total', header: 'Total', render: (inv) => <span className="font-mono font-medium">{formatCurrency(inv.total)}</span> },
     {
       key: 'status',
-      header: 'Status',
+      header: 'Estado',
       render: (inv) => {
-        if (!inv.onCredit) return <Badge variant="green">Cash</Badge>;
-        return inv.paidAt ? <Badge variant="green">Paid</Badge> : <Badge variant="yellow">Credit Pending</Badge>;
+        if (!inv.onCredit) return <Badge variant="green">Contado</Badge>;
+        return inv.paidAt ? <Badge variant="green">Pagado</Badge> : <Badge variant="yellow">Crédito Pendiente</Badge>;
       },
     },
     {
@@ -69,12 +69,12 @@ export function SaleInvoicesPage() {
       ? [
           {
             key: '_actions',
-            header: 'Actions',
+            header: 'Acciones',
             render: (inv: SaleInvoice) => (
               <div className="flex gap-2">
                 {inv.onCredit && !inv.paidAt && (
                   <Button size="sm" variant="secondary" onClick={() => payMutation.mutate(inv.id)} isLoading={payMutation.isPending}>
-                    Mark Paid
+                    Marcar Pagado
                   </Button>
                 )}
                 {!inv.reversed && (
@@ -91,8 +91,8 @@ export function SaleInvoicesPage() {
 
   return (
     <PageLayout
-      title="Sale Invoices"
-      action={isAdmin() ? <Button onClick={() => setIsFormOpen(true)}>+ New Invoice</Button> : undefined}
+      title="Facturas de Venta"
+      action={isAdmin() ? <Button onClick={() => setIsFormOpen(true)}>+ Nueva Factura</Button> : undefined}
     >
       <div className="flex gap-3 mb-4">
         <select
@@ -100,22 +100,22 @@ export function SaleInvoicesPage() {
           onChange={(e) => { setFilterOnCredit(e.target.value); pagination.reset(); }}
           className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
         >
-          <option value="">All types</option>
-          <option value="false">Cash</option>
-          <option value="true">Credit</option>
+          <option value="">Todos los tipos</option>
+          <option value="false">Contado</option>
+          <option value="true">Crédito</option>
         </select>
         <select
           value={filterPaid}
           onChange={(e) => { setFilterPaid(e.target.value); pagination.reset(); }}
           className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
         >
-          <option value="">All payment statuses</option>
-          <option value="true">Paid</option>
-          <option value="false">Unpaid</option>
+          <option value="">Todos los estados de pago</option>
+          <option value="true">Pagado</option>
+          <option value="false">Sin pagar</option>
         </select>
         {(filterOnCredit || filterPaid) && (
           <Button variant="ghost" size="sm" onClick={() => { setFilterOnCredit(''); setFilterPaid(''); pagination.reset(); }}>
-            Clear
+            Limpiar
           </Button>
         )}
       </div>
@@ -125,7 +125,7 @@ export function SaleInvoicesPage() {
         data={data?.items ?? []}
         isLoading={isLoading}
         keyExtractor={(inv) => inv.id}
-        emptyMessage="No sale invoices found."
+        emptyMessage="No se encontraron facturas de venta."
       />
       <Pagination
         page={pagination.page}
