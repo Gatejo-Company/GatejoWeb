@@ -11,18 +11,18 @@ import { useCreateSaleInvoice } from './queries';
 import type { AppError } from '@/api/types';
 
 const schema = z.object({
-  date: z.string().min(1, 'Date is required'),
+  date: z.string().min(1, 'La fecha es requerida'),
   onCredit: z.boolean().optional(),
   notes: z.string().optional(),
   items: z
     .array(
       z.object({
-        productId: z.number().int().min(1, 'Select a product'),
-        quantity: z.number().int().min(1, 'Quantity must be ≥ 1'),
-        unitPrice: z.number().min(0.01, 'Price must be > 0'),
+        productId: z.number().int().min(1, 'Selecciona un producto'),
+        quantity: z.number().int().min(1, 'La cantidad debe ser ≥ 1'),
+        unitPrice: z.number().min(0.01, 'El precio debe ser > 0'),
       }),
     )
-    .min(1, 'At least one item required'),
+    .min(1, 'Se requiere al menos un artículo'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -93,12 +93,12 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
       onClose();
     } catch (err) {
       const appError = err as AppError;
-      setError('root', { message: appError?.detail ?? appError?.title ?? 'Failed to create invoice' });
+      setError('root', { message: appError?.detail ?? appError?.title ?? 'Error al crear la factura' });
     }
   };
 
   return (
-    <Modal isOpen onClose={onClose} title="New Sale Invoice" maxWidth="xl">
+    <Modal isOpen onClose={onClose} title="Nueva Factura de Venta" maxWidth="xl">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {errors.root && (
           <div className="px-4 py-3 rounded bg-red-50 border border-red-200 text-sm text-red-700">
@@ -107,29 +107,29 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
         )}
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Date" htmlFor="si-date" error={errors.date?.message} required>
+          <FormField label="Fecha" htmlFor="si-date" error={errors.date?.message} required>
             <Input id="si-date" type="date" error={!!errors.date} {...register('date')} />
           </FormField>
           <div className="flex items-center gap-2 pt-6">
             <input id="si-credit" type="checkbox" {...register('onCredit')} className="w-4 h-4" />
-            <label htmlFor="si-credit" className="text-sm text-gray-700">On Credit</label>
+            <label htmlFor="si-credit" className="text-sm text-gray-700">A crédito</label>
           </div>
         </div>
 
-        <FormField label="Notes" htmlFor="si-notes">
+        <FormField label="Notas" htmlFor="si-notes">
           <Input id="si-notes" {...register('notes')} />
         </FormField>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">Line Items</h3>
+            <h3 className="text-sm font-semibold text-gray-700">Artículos</h3>
             <Button
               type="button"
               variant="secondary"
               size="sm"
               onClick={() => append({ productId: 0, quantity: 1, unitPrice: 0 })}
             >
-              + Add Item
+              + Agregar Artículo
             </Button>
           </div>
 
@@ -141,7 +141,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
             {fields.map((field, index) => (
               <div key={field.id} className="grid grid-cols-12 gap-2 items-end">
                 <div className="col-span-5">
-                  <label className="text-xs text-gray-500 mb-1 block">Product</label>
+                  <label className="text-xs text-gray-500 mb-1 block">Producto</label>
                   <select
                     className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-200"
                     {...register(`items.${index}.productId`, {
@@ -150,7 +150,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                         handleProductChange(index, Number(e.target.value)),
                     })}
                   >
-                    <option value={0}>Select product</option>
+                    <option value={0}>Seleccionar producto</option>
                     {products.data?.items.map((p) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
@@ -160,7 +160,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                   )}
                 </div>
                 <div className="col-span-2">
-                  <label className="text-xs text-gray-500 mb-1 block">Qty</label>
+                  <label className="text-xs text-gray-500 mb-1 block">Cant.</label>
                   <Input
                     type="number"
                     min="1"
@@ -169,7 +169,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                   />
                 </div>
                 <div className="col-span-3">
-                  <label className="text-xs text-gray-500 mb-1 block">Unit Price</label>
+                  <label className="text-xs text-gray-500 mb-1 block">Precio Unitario</label>
                   <Input
                     type="number"
                     min="0.01"
@@ -189,7 +189,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
                     className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg leading-none"
-                    aria-label="Remove item"
+                    aria-label="Eliminar artículo"
                   >
                     ×
                   </button>
@@ -206,9 +206,9 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
           <Button type="submit" isLoading={createMutation.isPending || isSubmitting}>
-            Create Invoice
+            Crear Factura
           </Button>
         </div>
       </form>

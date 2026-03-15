@@ -32,7 +32,7 @@ export function ProductsPage() {
   const patchActiveMutation = usePatchProductActive();
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this product?')) {
+    if (confirm('¿Eliminar este producto?')) {
       void deleteMutation.mutate(id);
     }
   };
@@ -59,22 +59,22 @@ export function ProductsPage() {
   const columns: Column<Product>[] = [
     {
       key: 'name',
-      header: 'Name',
+      header: 'Nombre',
       render: (p) => <span className="font-medium text-gray-900">{p.name}</span>,
     },
     {
       key: 'category',
-      header: 'Category',
+      header: 'Categoría',
       render: (p) => <span className="text-gray-600">{p.categoryName ?? '—'}</span>,
     },
     {
       key: 'brand',
-      header: 'Brand',
+      header: 'Marca',
       render: (p) => <span className="text-gray-600">{p.brandName ?? '—'}</span>,
     },
     {
       key: 'price',
-      header: 'Price',
+      header: 'Precio',
       render: (p) => <span className="font-mono">{formatCurrency(p.price)}</span>,
     },
     {
@@ -89,19 +89,19 @@ export function ProductsPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: 'Estado',
       render: (p) =>
-        p.active ? <Badge variant="green">Active</Badge> : <Badge variant="gray">Inactive</Badge>,
+        p.active ? <Badge variant="green">Activo</Badge> : <Badge variant="gray">Inactivo</Badge>,
     },
     ...(isAdmin()
       ? [
           {
             key: 'actions',
-            header: 'Actions',
+            header: 'Acciones',
             render: (p: Product) => (
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="secondary" onClick={() => handleEdit(p.id)}>
-                  Edit
+                  Editar
                 </Button>
                 <Button
                   size="sm"
@@ -109,7 +109,7 @@ export function ProductsPage() {
                   onClick={() => handleToggleActive(p)}
                   isLoading={patchActiveMutation.isPending}
                 >
-                  {p.active ? 'Deactivate' : 'Activate'}
+                  {p.active ? 'Desactivar' : 'Activar'}
                 </Button>
                 <Button
                   size="sm"
@@ -117,7 +117,7 @@ export function ProductsPage() {
                   onClick={() => handleDelete(p.id)}
                   isLoading={deleteMutation.isPending}
                 >
-                  Delete
+                  Eliminar
                 </Button>
               </div>
             ),
@@ -128,10 +128,10 @@ export function ProductsPage() {
 
   return (
     <PageLayout
-      title="Products"
+      title="Productos"
       action={
         isAdmin() ? (
-          <Button onClick={handleCreate}>+ New Product</Button>
+          <Button onClick={handleCreate}>+ Nuevo Producto</Button>
         ) : undefined
       }
     >
@@ -144,9 +144,9 @@ export function ProductsPage() {
           }}
           className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
         >
-          <option value="">All statuses</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
+          <option value="">Todos los estados</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
         </select>
         {activeFilter && (
           <Button
@@ -157,7 +157,7 @@ export function ProductsPage() {
               pagination.reset();
             }}
           >
-            Clear filters
+            Limpiar filtros
           </Button>
         )}
       </div>
@@ -167,7 +167,7 @@ export function ProductsPage() {
         data={data?.items ?? []}
         isLoading={isLoading}
         keyExtractor={(p) => p.id}
-        emptyMessage="No products found."
+        emptyMessage="No se encontraron productos."
       />
 
       <Pagination

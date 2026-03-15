@@ -26,7 +26,7 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
   }
 
   if (invoices.length === 0) {
-    return <p className="text-sm text-gray-400 mt-4">No purchases yet.</p>;
+    return <p className="text-sm text-gray-400 mt-4">Sin compras aún.</p>;
   }
 
   return (
@@ -34,10 +34,10 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
       <thead>
         <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
           <th className="pb-2 font-medium">ID</th>
-          <th className="pb-2 font-medium">Supplier</th>
-          <th className="pb-2 font-medium">Date</th>
+          <th className="pb-2 font-medium">Proveedor</th>
+          <th className="pb-2 font-medium">Fecha</th>
           <th className="pb-2 font-medium">Total</th>
-          <th className="pb-2 font-medium">Paid</th>
+          <th className="pb-2 font-medium">Pagado</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-50">
@@ -49,11 +49,11 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
             <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
             <td className="py-2">
               {inv.paid >= inv.total ? (
-                <Badge variant="green">Paid</Badge>
+                <Badge variant="green">Pagado</Badge>
               ) : inv.paid > 0 ? (
-                <Badge variant="yellow">Partial</Badge>
+                <Badge variant="yellow">Parcial</Badge>
               ) : (
-                <Badge variant="red">Unpaid</Badge>
+                <Badge variant="red">Sin pagar</Badge>
               )}
             </td>
           </tr>

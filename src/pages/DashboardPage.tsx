@@ -17,25 +17,25 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          label="Total Products"
+          label="Total de Productos"
           value={totalProducts}
           icon="📦"
           isLoading={products.isLoading}
         />
         <StatCard
-          label="Sale Invoices"
+          label="Facturas de Venta"
           value={totalSales}
           icon="🧾"
           isLoading={recentSales.isLoading}
         />
         <StatCard
-          label="Purchase Invoices"
+          label="Facturas de Compra"
           value={totalPurchases}
           icon="🛒"
           isLoading={recentPurchases.isLoading}
         />
         <StatCard
-          label="Pending Credit"
+          label="Crédito Pendiente"
           value={pendingCreditCount}
           icon="⏳"
           isLoading={pendingCredit.isLoading}
@@ -44,7 +44,7 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <h2 className="text-base font-semibold text-gray-900">Recent Sales</h2>
+          <h2 className="text-base font-semibold text-gray-900">Ventas Recientes</h2>
           <RecentSalesTable
             invoices={recentSales.data?.items ?? []}
             isLoading={recentSales.isLoading}
@@ -52,7 +52,7 @@ export function DashboardPage() {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-base font-semibold text-gray-900">Recent Purchases</h2>
+          <h2 className="text-base font-semibold text-gray-900">Compras Recientes</h2>
           <RecentPurchasesTable
             invoices={recentPurchases.data?.items ?? []}
             isLoading={recentPurchases.isLoading}

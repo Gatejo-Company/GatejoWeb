@@ -23,11 +23,11 @@ export function Topbar() {
             {user.name} <span className="text-gray-400">({user.role})</span>
           </span>
         )}
-        <Link to="/profile" className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold select-none hover:bg-indigo-700 transition-colors" title="My Profile">
+        <Link to="/profile" className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold select-none hover:bg-indigo-700 transition-colors" title="Mi Perfil">
           {initials}
         </Link>
         <Button variant="ghost" size="sm" onClick={() => { void logout(); }}>
-          Logout
+          Cerrar sesión
         </Button>
       </div>
     </header>
