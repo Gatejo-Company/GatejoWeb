@@ -8,6 +8,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -152,6 +153,7 @@ export function PurchaseInvoicesPage() {
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [payingInvoice, setPayingInvoice] = useState<PurchaseInvoice | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading } = usePurchaseInvoices({ page: pagination.page, pageSize: pagination.pageSize });
   const deleteMutation = useDeletePurchaseInvoice();
@@ -173,7 +175,7 @@ export function PurchaseInvoicesPage() {
       key: '_actions', header: 'Acciones', render: (inv: PurchaseInvoice) => (
         <div className="flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => setPayingInvoice(inv)}>Pago</Button>
-          <Button size="sm" variant="danger" onClick={() => { if (confirm('¿Eliminar?')) deleteMutation.mutate(inv.id); }} isLoading={deleteMutation.isPending}>Eliminar</Button>
+          <Button size="sm" variant="danger" onClick={() => setDeletingId(inv.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
         </div>
       ),
     } satisfies Column<PurchaseInvoice>] : []),
@@ -185,6 +187,14 @@ export function PurchaseInvoicesPage() {
       <Pagination page={pagination.page} pageSize={pagination.pageSize} totalPages={data?.totalPages ?? 0} totalCount={data?.totalCount ?? 0} onPageChange={pagination.setPage} />
       {isFormOpen && <PurchaseInvoiceForm onClose={() => setIsFormOpen(false)} />}
       {payingInvoice && <PaymentModal invoice={payingInvoice} onClose={() => setPayingInvoice(null)} />}
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar factura de compra"
+        message="¿Estás seguro de que deseas eliminar esta factura?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }

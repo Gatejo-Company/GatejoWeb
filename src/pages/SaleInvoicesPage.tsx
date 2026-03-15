@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
@@ -21,6 +22,7 @@ export function SaleInvoicesPage() {
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<SaleInvoice | null>(null);
+  const [reversingInvoice, setReversingInvoice] = useState<SaleInvoice | null>(null);
   const [filterOnCredit, setFilterOnCredit] = useState('');
   const [filterPaid, setFilterPaid] = useState('');
 
@@ -34,10 +36,7 @@ export function SaleInvoicesPage() {
   const reverseMutation = useReverseSaleInvoice();
   const payMutation = usePaySaleInvoice();
 
-  const handleReverse = (inv: SaleInvoice) => {
-    if (!confirm(`¿Generar factura de anulación para la factura #${inv.id}?`)) return;
-    reverseMutation.mutate(inv.id);
-  };
+  const handleReverse = (inv: SaleInvoice) => setReversingInvoice(inv);
 
   const columns: Column<SaleInvoice>[] = [
     { key: 'id', header: 'ID', render: (inv) => <span className="font-mono text-xs text-gray-400">#{inv.id}</span> },
@@ -140,6 +139,14 @@ export function SaleInvoicesPage() {
       {selectedInvoice && (
         <SaleInvoiceDetailModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
       )}
+      <ConfirmModal
+        isOpen={reversingInvoice !== null}
+        title="Anular factura"
+        message={`¿Generar factura de anulación para la factura #${reversingInvoice?.id}?`}
+        confirmLabel="Anular"
+        onConfirm={() => { if (reversingInvoice) reverseMutation.mutate(reversingInvoice.id); setReversingInvoice(null); }}
+        onCancel={() => setReversingInvoice(null)}
+      />
     </PageLayout>
   );
 }

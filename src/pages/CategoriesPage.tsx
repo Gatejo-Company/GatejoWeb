@@ -6,6 +6,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -44,6 +45,7 @@ export function CategoriesPage() {
   const pagination = usePagination();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Category | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading } = useCategories({
     page: pagination.page,
@@ -87,9 +89,7 @@ export function CategoriesPage() {
     closeForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Eliminar esta categoría?')) deleteMutation.mutate(id);
-  };
+  const handleDelete = (id: number) => setDeletingId(id);
 
   const adminColumns: Column<Category>[] = isAdmin()
     ? [
@@ -157,6 +157,15 @@ export function CategoriesPage() {
           </form>
         </Modal>
       )}
+
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Eliminar categoría"
+        message="¿Estás seguro de que deseas eliminar esta categoría?"
+        confirmLabel="Eliminar"
+        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageLayout>
   );
 }
