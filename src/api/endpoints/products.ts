@@ -33,45 +33,45 @@ export interface UpdatePriceRequest {
 
 export const productsApi = {
   list: async (params?: ProductListParams): Promise<PaginatedData<Product>> => {
-    const response = await client.get<PaginatedData<Product>>('/api/Products', { params });
+    const response = await client.get<PaginatedData<Product>>('/Products', { params });
     return response.data;
   },
 
   get: async (id: number): Promise<Product> => {
-    const response = await client.get<Product>(`/api/Products/${id}`);
+    const response = await client.get<Product>(`/Products/${id}`);
     return response.data;
   },
 
   create: async (body: CreateProductRequest): Promise<Product> => {
-    const response = await client.post<Product>('/api/Products', body);
+    const response = await client.post<Product>('/Products', body);
     return response.data;
   },
 
   update: async (id: number, body: UpdateProductRequest): Promise<Product> => {
-    const response = await client.put<Product>(`/api/Products/${id}`, body);
+    const response = await client.put<Product>(`/Products/${id}`, body);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await client.delete(`/api/Products/${id}`);
+    await client.delete(`/Products/${id}`);
   },
 
   patchPrice: async (id: number, body: UpdatePriceRequest): Promise<Product> => {
-    const response = await client.patch<Product>(`/api/Products/${id}/price`, body);
+    const response = await client.patch<Product>(`/Products/${id}/price`, body);
     return response.data;
   },
 
   patchActive: async (id: number, active: boolean): Promise<void> => {
-    await client.patch(`/api/Products/${id}/active`, { active });
+    await client.patch(`/Products/${id}/active`, { active });
   },
 
   getPriceHistory: async (id: number, params?: PaginationParams): Promise<PaginatedData<PriceHistory>> => {
-    const response = await client.get<PaginatedData<PriceHistory>>(`/api/Products/${id}/price-history`, { params });
+    const response = await client.get<PaginatedData<PriceHistory>>(`/Products/${id}/price-history`, { params });
     return response.data;
   },
 
   getStock: async (id: number): Promise<ProductStock> => {
-    const response = await client.get<ProductStock>(`/api/Products/${id}/stock`);
+    const response = await client.get<ProductStock>(`/Products/${id}/stock`);
     return response.data;
   },
 };

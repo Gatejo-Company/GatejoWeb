@@ -19,12 +19,12 @@ export interface RegisterPayload {
 
 export const authApi = {
   login: async (data: LoginPayload): Promise<AuthTokenResponse> => {
-    const response = await client.post<AuthTokenResponse>('/api/Auth/login', data);
+    const response = await client.post<AuthTokenResponse>('/Auth/login', data);
     return response.data;
   },
 
   refresh: async (refreshToken: string): Promise<AuthTokenResponse> => {
-    const response = await client.post<AuthTokenResponse>('/api/Auth/refresh', {
+    const response = await client.post<AuthTokenResponse>('/Auth/refresh', {
       token: getAccessToken() ?? '',
       refreshToken,
     });
@@ -32,10 +32,10 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    await client.post('/api/Auth/logout');
+    await client.post('/Auth/logout');
   },
 
   register: async (data: RegisterPayload): Promise<void> => {
-    await client.post('/api/Auth/register', data);
+    await client.post('/Auth/register', data);
   },
 };

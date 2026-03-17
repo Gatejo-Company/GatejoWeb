@@ -23,25 +23,25 @@ export interface CreatePurchaseInvoiceRequest {
 
 export const purchaseInvoicesApi = {
   list: async (params?: PurchaseInvoiceListParams): Promise<PaginatedData<PurchaseInvoice>> => {
-    const response = await client.get<PaginatedData<PurchaseInvoice>>('/api/purchase-invoices', { params });
+    const response = await client.get<PaginatedData<PurchaseInvoice>>('/purchase-invoices', { params });
     return response.data;
   },
 
   get: async (id: number): Promise<PurchaseInvoice> => {
-    const response = await client.get<PurchaseInvoice>(`/api/purchase-invoices/${id}`);
+    const response = await client.get<PurchaseInvoice>(`/purchase-invoices/${id}`);
     return response.data;
   },
 
   create: async (body: CreatePurchaseInvoiceRequest): Promise<PurchaseInvoice> => {
-    const response = await client.post<PurchaseInvoice>('/api/purchase-invoices', body);
+    const response = await client.post<PurchaseInvoice>('/purchase-invoices', body);
     return response.data;
   },
 
   patchPayment: async (id: number, paid: number): Promise<void> => {
-    await client.patch(`/api/purchase-invoices/${id}/payment`, { paid });
+    await client.patch(`/purchase-invoices/${id}/payment`, { paid });
   },
 
   delete: async (id: number): Promise<void> => {
-    await client.delete(`/api/purchase-invoices/${id}`);
+    await client.delete(`/purchase-invoices/${id}`);
   },
 };

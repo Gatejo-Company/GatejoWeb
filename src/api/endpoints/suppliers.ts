@@ -11,26 +11,26 @@ export interface SupplierRequest {
 
 export const suppliersApi = {
   list: async (params?: PaginationParams): Promise<PaginatedData<Supplier>> => {
-    const response = await client.get<PaginatedData<Supplier>>('/api/Suppliers', { params });
+    const response = await client.get<PaginatedData<Supplier>>('/Suppliers', { params });
     return response.data;
   },
 
   get: async (id: number): Promise<Supplier> => {
-    const response = await client.get<Supplier>(`/api/Suppliers/${id}`);
+    const response = await client.get<Supplier>(`/Suppliers/${id}`);
     return response.data;
   },
 
   create: async (body: SupplierRequest): Promise<Supplier> => {
-    const response = await client.post<Supplier>('/api/Suppliers', body);
+    const response = await client.post<Supplier>('/Suppliers', body);
     return response.data;
   },
 
   update: async (id: number, body: SupplierRequest): Promise<Supplier> => {
-    const response = await client.put<Supplier>(`/api/Suppliers/${id}`, body);
+    const response = await client.put<Supplier>(`/Suppliers/${id}`, body);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await client.delete(`/api/Suppliers/${id}`);
+    await client.delete(`/Suppliers/${id}`);
   },
 };
