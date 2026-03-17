@@ -16,11 +16,9 @@ export interface SaleItemRequest {
 }
 
 export interface CreateSaleInvoiceRequest {
-  idReversedInvoice: number;
   date: string;
   onCredit?: boolean;
   notes?: string;
-  reversed?: boolean;
   items: SaleItemRequest[];
 }
 

@@ -87,8 +87,8 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
         items: values.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
-        })),
+          unitPrice: item.unitPrice
+        }))
       });
       onClose();
     } catch (err) {
