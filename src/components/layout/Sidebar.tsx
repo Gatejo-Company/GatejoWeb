@@ -17,19 +17,20 @@ interface NavItem {
   to: string;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
+  color: string;
   adminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: Squares2X2Icon },
-  { to: '/products', label: 'Productos', icon: CubeIcon },
-  { to: '/categories', label: 'Categorías', icon: TagIcon },
-  { to: '/brands', label: 'Marcas', icon: BookmarkIcon },
-  { to: '/suppliers', label: 'Proveedores', icon: BuildingOffice2Icon },
-  { to: '/sale-invoices', label: 'Facturas de Venta', icon: DocumentTextIcon },
-  { to: '/purchase-invoices', label: 'Facturas de Compra', icon: ShoppingCartIcon },
-  { to: '/stock-movements', label: 'Movimientos de Stock', icon: ChartBarIcon },
-  { to: '/users', label: 'Usuarios', icon: UserIcon, adminOnly: true },
+  { to: '/', label: 'Dashboard', icon: Squares2X2Icon, color: 'text-sky-400' },
+  { to: '/products', label: 'Productos', icon: CubeIcon, color: 'text-amber-400' },
+  { to: '/categories', label: 'Categorías', icon: TagIcon, color: 'text-emerald-400' },
+  { to: '/brands', label: 'Marcas', icon: BookmarkIcon, color: 'text-rose-400' },
+  { to: '/suppliers', label: 'Proveedores', icon: BuildingOffice2Icon, color: 'text-violet-400' },
+  { to: '/sale-invoices', label: 'Facturas de Venta', icon: DocumentTextIcon, color: 'text-teal-400' },
+  { to: '/purchase-invoices', label: 'Facturas de Compra', icon: ShoppingCartIcon, color: 'text-orange-400' },
+  { to: '/stock-movements', label: 'Movimientos de Stock', icon: ChartBarIcon, color: 'text-cyan-400' },
+  { to: '/users', label: 'Usuarios', icon: UserIcon, color: 'text-pink-400', adminOnly: true },
 ];
 
 interface SidebarProps {
@@ -82,16 +83,19 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   to={item.to}
                   end={item.to === '/'}
                   onClick={onClose}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                    }`
-                  }
+                  className={({ isActive }) => {
+                    const base = 'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors';
+                    return isActive
+                      ? `${base} bg-indigo-600 text-white`
+                      : `${base} text-gray-300 hover:bg-gray-800 hover:text-white`;
+                  }}
                 >
-                  <item.icon className="w-5 h-5 shrink-0" />
-                  {item.label}
+                  {({ isActive }) => (
+                    <>
+                      <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : item.color}`} />
+                      {item.label}
+                    </>
+                  )}
                 </NavLink>
               </li>
             ))}
