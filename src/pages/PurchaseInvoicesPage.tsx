@@ -166,9 +166,9 @@ export function PurchaseInvoicesPage() {
     { key: 'paid', header: 'Pagado', render: (inv) => <span className="font-mono">{formatCurrency(inv.paid)}</span> },
     {
       key: 'status', header: 'Estado', render: (inv) => {
-        if (inv.paid >= inv.total) return <Badge variant="green">Pagado</Badge>;
-        if (inv.paid > 0) return <Badge variant="yellow">Parcial</Badge>;
-        return <Badge variant="red">Sin pagar</Badge>;
+        if (inv.paid >= inv.total) return <Badge variant="green">$$$ Pagado</Badge>;
+        if (inv.paid > 0) return <Badge variant="yellow">$$ Parcial</Badge>;
+        return <Badge variant="red">$ Sin pagar</Badge>;
       },
     },
     ...(isAdmin() ? [{

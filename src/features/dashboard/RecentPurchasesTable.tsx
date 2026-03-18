@@ -49,11 +49,11 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
             <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
             <td className="py-2">
               {inv.paid >= inv.total ? (
-                <Badge variant="green">Pagado</Badge>
+                <Badge variant="green">$$$ Pagado</Badge>
               ) : inv.paid > 0 ? (
-                <Badge variant="yellow">Parcial</Badge>
+                <Badge variant="yellow">$$ Parcial</Badge>
               ) : (
-                <Badge variant="red">Sin pagar</Badge>
+                <Badge variant="red">$ Sin pagar</Badge>
               )}
             </td>
           </tr>
