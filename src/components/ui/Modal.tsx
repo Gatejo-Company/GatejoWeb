@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 interface ModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
           className="text-gray-400 hover:text-gray-600 text-xl leading-none"
           aria-label="Cerrar"
         >
-          ×
+          <XMarkIcon className="w-5 h-5" />
         </button>
       </div>
       <div className="px-4 sm:px-6 py-5">{children}</div>

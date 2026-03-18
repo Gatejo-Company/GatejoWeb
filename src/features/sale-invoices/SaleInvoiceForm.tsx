@@ -1,3 +1,4 @@
+import { XMarkIcon } from '@heroicons/react/20/solid';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -191,7 +192,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg leading-none"
                     aria-label="Eliminar artículo"
                   >
-                    ×
+                    <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
               </div>

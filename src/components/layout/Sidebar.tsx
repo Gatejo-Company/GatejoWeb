@@ -1,23 +1,35 @@
 import { NavLink } from 'react-router';
 import { useAuth } from '@/features/auth/AuthContext';
+import {
+  Squares2X2Icon,
+  CubeIcon,
+  TagIcon,
+  BookmarkIcon,
+  BuildingOffice2Icon,
+  DocumentTextIcon,
+  ShoppingCartIcon,
+  ChartBarIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline';
+import type { ComponentType, SVGProps } from 'react';
 
 interface NavItem {
   to: string;
   label: string;
-  icon: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   adminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: '◻' },
-  { to: '/products', label: 'Productos', icon: '📦' },
-  { to: '/categories', label: 'Categorías', icon: '🏷' },
-  { to: '/brands', label: 'Marcas', icon: '🔖' },
-  { to: '/suppliers', label: 'Proveedores', icon: '🏭' },
-  { to: '/sale-invoices', label: 'Facturas de Venta', icon: '🧾' },
-  { to: '/purchase-invoices', label: 'Facturas de Compra', icon: '🛒' },
-  { to: '/stock-movements', label: 'Movimientos de Stock', icon: '📊' },
-  { to: '/users', label: 'Usuarios', icon: '👤', adminOnly: true },
+  { to: '/', label: 'Dashboard', icon: Squares2X2Icon },
+  { to: '/products', label: 'Productos', icon: CubeIcon },
+  { to: '/categories', label: 'Categorías', icon: TagIcon },
+  { to: '/brands', label: 'Marcas', icon: BookmarkIcon },
+  { to: '/suppliers', label: 'Proveedores', icon: BuildingOffice2Icon },
+  { to: '/sale-invoices', label: 'Facturas de Venta', icon: DocumentTextIcon },
+  { to: '/purchase-invoices', label: 'Facturas de Compra', icon: ShoppingCartIcon },
+  { to: '/stock-movements', label: 'Movimientos de Stock', icon: ChartBarIcon },
+  { to: '/users', label: 'Usuarios', icon: UserIcon, adminOnly: true },
 ];
 
 interface SidebarProps {
@@ -78,7 +90,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     }`
                   }
                 >
-                  <span className="text-base">{item.icon}</span>
+                  <item.icon className="w-5 h-5 shrink-0" />
                   {item.label}
                 </NavLink>
               </li>

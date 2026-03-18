@@ -16,7 +16,7 @@ export function Card({ children, className = '' }: CardProps) {
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon?: string;
+  icon?: ReactNode;
   isLoading?: boolean;
 }
 
@@ -24,7 +24,7 @@ export function StatCard({ label, value, icon, isLoading = false }: StatCardProp
   return (
     <Card className="p-6">
       <div className="flex items-center gap-3 mb-2">
-        {icon && <span className="text-2xl">{icon}</span>}
+        {icon && <span className="text-indigo-500">{icon}</span>}
         <span className="text-sm font-medium text-gray-500">{label}</span>
       </div>
       {isLoading ? (

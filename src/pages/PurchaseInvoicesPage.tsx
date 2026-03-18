@@ -23,10 +23,9 @@ import {
   usePatchPayment,
   useDeletePurchaseInvoice,
 } from '@/features/purchase-invoices/queries';
-
+import { CheckCircleIcon, ClockIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import type { PurchaseInvoice } from '@/types/models';
 import type { AppError } from '@/api/types';
-import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 const schema = z.object({
   supplierId: z.number().int().min(1, 'Selecciona un proveedor'),
@@ -116,7 +115,7 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
                 <div className="col-span-2"><label className="text-xs text-gray-500 mb-1 block">Cant.</label><Input type="number" min="1" step="1" {...register(`items.${index}.quantity`, { valueAsNumber: true })} /></div>
                 <div className="col-span-3"><label className="text-xs text-gray-500 mb-1 block">Costo Unitario</label><Input type="number" min="0.01" step="0.01" {...register(`items.${index}.unitPrice`, { valueAsNumber: true })} /></div>
                 <div className="col-span-1"><label className="text-xs text-gray-500 mb-1 block">Sub.</label><span className="text-xs font-mono">{formatCurrency((Number(watchedItems[index]?.quantity) || 0) * (Number(watchedItems[index]?.unitPrice) || 0))}</span></div>
-                <div className="col-span-1 flex justify-end"><button type="button" onClick={() => remove(index)} disabled={fields.length === 1} className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg" aria-label="Eliminar">×</button></div>
+                <div className="col-span-1 flex justify-end"><button type="button" onClick={() => remove(index)} disabled={fields.length === 1} className="text-red-400 hover:text-red-600 disabled:opacity-30" aria-label="Eliminar"><XMarkIcon className="w-5 h-5" /></button></div>
               </div>
             ))}
           </div>
@@ -170,9 +169,9 @@ export function PurchaseInvoicesPage() {
     { key: 'paid', header: 'Pagado', render: (inv) => <span className="font-mono">{formatCurrency(inv.paid)}</span> },
     {
       key: 'status', header: 'Estado', render: (inv) => {
-        if (inv.paid >= inv.total) return <Badge variant="green"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>;
-        if (inv.paid > 0) return <Badge variant="yellow"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>;
-        return <Badge variant="red"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>;
+        if (inv.paid >= inv.total) return <Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge>;
+        if (inv.paid > 0) return <Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge>;
+        return <Badge variant="red"><XCircleIcon className="w-4 h-4 inline" /></Badge>;
       },
     },
     ...(isAdmin() ? [{
