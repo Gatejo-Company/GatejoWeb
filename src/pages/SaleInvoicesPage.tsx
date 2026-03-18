@@ -5,7 +5,9 @@ import { Pagination } from '@/components/data/Pagination';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { usePagination } from '@/hooks/usePagination';
+import { CheckCircleIcon, ClockIcon, BanknotesIcon } from '@heroicons/react/20/solid';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useSaleInvoices, useReverseSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
@@ -51,8 +53,10 @@ export function SaleInvoicesPage() {
       key: 'status',
       header: 'Estado',
       render: (inv) => {
-        if (!inv.onCredit) return <Badge variant="green">Contado</Badge>;
-        return inv.paidAt ? <Badge variant="green">Pagado</Badge> : <Badge variant="yellow">Crédito Pendiente</Badge>;
+        if (!inv.onCredit) return <Tooltip label="Contado"><Badge variant="green"><BanknotesIcon className="w-4 h-4 inline" /></Badge></Tooltip>;
+        return inv.paidAt
+          ? <Tooltip label="Pagado"><Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>
+          : <Tooltip label="Crédito Pendiente"><Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge></Tooltip>;
       },
     },
     {
@@ -93,7 +97,7 @@ export function SaleInvoicesPage() {
       title="Facturas de Venta"
       action={isAdmin() ? <Button onClick={() => setIsFormOpen(true)}>+ Nueva Factura</Button> : undefined}
     >
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <select
           value={filterOnCredit}
           onChange={(e) => { setFilterOnCredit(e.target.value); pagination.reset(); }}

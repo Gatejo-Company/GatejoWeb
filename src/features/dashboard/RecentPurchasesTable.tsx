@@ -1,5 +1,7 @@
 import type { PurchaseInvoice } from '@/types/models';
 import { Badge } from '@/components/ui/Badge';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/react/20/solid';
 
 interface RecentPurchasesTableProps {
   invoices: PurchaseInvoice[];
@@ -30,7 +32,7 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
   }
 
   return (
-    <table className="w-full mt-4 text-sm">
+    <div className="overflow-x-auto mt-4"><table className="w-full text-sm">
       <thead>
         <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
           <th className="pb-2 font-medium">ID</th>
@@ -49,16 +51,16 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
             <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
             <td className="py-2">
               {inv.paid >= inv.total ? (
-                <Badge variant="green">Pagado</Badge>
+                <Tooltip label="Pagado"><Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               ) : inv.paid > 0 ? (
-                <Badge variant="yellow">Parcial</Badge>
+                <Tooltip label="Parcial"><Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               ) : (
-                <Badge variant="red">Sin pagar</Badge>
+                <Tooltip label="Sin pagar"><Badge variant="red"><XCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               )}
             </td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></div>
   );
 }

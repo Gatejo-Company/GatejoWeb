@@ -19,7 +19,7 @@ export function Pagination({
   const to = Math.min(page * pageSize, totalCount);
 
   return (
-    <div className="flex items-center justify-between px-1 py-3 text-sm text-gray-600">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-1 py-3 text-sm text-gray-600">
       <span>
         {totalCount === 0 ? 'Sin resultados' : `Mostrando ${from}–${to} de ${totalCount}`}
       </span>

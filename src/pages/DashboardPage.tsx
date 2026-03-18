@@ -2,6 +2,7 @@ import { StatCard, Card } from '@/components/ui/Card';
 import { useDashboardStats } from '@/features/dashboard/useQueries';
 import { RecentSalesTable } from '@/features/dashboard/RecentSalesTable';
 import { RecentPurchasesTable } from '@/features/dashboard/RecentPurchasesTable';
+import { CubeIcon, DocumentTextIcon, ShoppingCartIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 export function DashboardPage() {
   const { products, recentSales, recentPurchases, pendingCredit } = useDashboardStats();
@@ -19,26 +20,30 @@ export function DashboardPage() {
         <StatCard
           label="Total de Productos"
           value={totalProducts}
-          icon="📦"
+          icon={<CubeIcon className="w-6 h-6 text-amber-500" />}
           isLoading={products.isLoading}
+          align='center'
         />
         <StatCard
           label="Facturas de Venta"
           value={totalSales}
-          icon="🧾"
+          icon={<DocumentTextIcon className="w-6 h-6 text-teal-500" />}
           isLoading={recentSales.isLoading}
+          align='center'
         />
         <StatCard
           label="Facturas de Compra"
           value={totalPurchases}
-          icon="🛒"
+          icon={<ShoppingCartIcon className="w-6 h-6 text-orange-500" />}
           isLoading={recentPurchases.isLoading}
+          align='center'
         />
         <StatCard
           label="Crédito Pendiente"
           value={pendingCreditCount}
-          icon="⏳"
+          icon={<ClockIcon className="w-6 h-6 text-rose-500" />}
           isLoading={pendingCredit.isLoading}
+          align='center'
         />
       </div>
 

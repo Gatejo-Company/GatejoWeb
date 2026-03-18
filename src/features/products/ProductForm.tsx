@@ -109,7 +109,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
           <Input id="description" {...register('description')} />
         </FormField>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Categoría" htmlFor="categoryId" error={errors.categoryId?.message} required>
             <select
               id="categoryId"
@@ -137,7 +137,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
           </FormField>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {!isEditing && (
             <FormField label="Precio" htmlFor="price" error={(errors as { price?: { message?: string } }).price?.message} required>
               <Input

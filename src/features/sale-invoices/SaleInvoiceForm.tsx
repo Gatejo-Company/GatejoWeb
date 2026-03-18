@@ -1,3 +1,4 @@
+import { XMarkIcon } from '@heroicons/react/20/solid';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -106,11 +107,11 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Fecha" htmlFor="si-date" error={errors.date?.message} required>
             <Input id="si-date" type="date" error={!!errors.date} {...register('date')} />
           </FormField>
-          <div className="flex items-center gap-2 pt-6">
+          <div className="flex items-center gap-2 sm:pt-6">
             <input id="si-credit" type="checkbox" {...register('onCredit')} className="w-4 h-4" />
             <label htmlFor="si-credit" className="text-sm text-gray-700">A crédito</label>
           </div>
@@ -139,8 +140,8 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
 
           <div className="space-y-2">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-12 gap-2 items-end">
-                <div className="col-span-5">
+              <div key={field.id} className="grid grid-cols-2 sm:grid-cols-12 gap-2 items-end border border-gray-100 rounded-md p-2 sm:border-0 sm:p-0">
+                <div className="col-span-2 sm:col-span-5">
                   <label className="text-xs text-gray-500 mb-1 block">Producto</label>
                   <select
                     className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -159,7 +160,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     <p className="text-xs text-red-600">{errors.items[index].productId?.message}</p>
                   )}
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="text-xs text-gray-500 mb-1 block">Cant.</label>
                   <Input
                     type="number"
@@ -168,8 +169,8 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     {...register(`items.${index}.quantity`, { valueAsNumber: true })}
                   />
                 </div>
-                <div className="col-span-3">
-                  <label className="text-xs text-gray-500 mb-1 block">Precio Unitario</label>
+                <div className="col-span-1 sm:col-span-3">
+                  <label className="text-xs text-gray-500 mb-1 block">Precio Unit.</label>
                   <Input
                     type="number"
                     min="0.01"
@@ -177,13 +178,13 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     {...register(`items.${index}.unitPrice`, { valueAsNumber: true })}
                   />
                 </div>
-                <div className="col-span-1">
+                <div className="col-span-1 sm:col-span-1">
                   <label className="text-xs text-gray-500 mb-1 block">Subtotal</label>
                   <span className="text-sm font-mono text-gray-700">
                     {formatCurrency((Number(watchedItems[index]?.quantity) || 0) * (Number(watchedItems[index]?.unitPrice) || 0))}
                   </span>
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-1 sm:col-span-1 flex justify-end">
                   <button
                     type="button"
                     onClick={() => remove(index)}
@@ -191,7 +192,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     className="text-red-400 hover:text-red-600 disabled:opacity-30 text-lg leading-none"
                     aria-label="Eliminar artículo"
                   >
-                    ×
+                    <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
               </div>

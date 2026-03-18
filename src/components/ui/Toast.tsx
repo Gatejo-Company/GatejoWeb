@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { CheckCircleIcon, XCircleIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import type { ComponentType, SVGProps } from 'react';
 
 type ToastVariant = 'success' | 'error' | 'info';
 
@@ -26,10 +28,10 @@ const variantClasses: Record<ToastVariant, string> = {
   info: 'bg-indigo-600',
 };
 
-const variantIcons: Record<ToastVariant, string> = {
-  success: '✓',
-  error: '✕',
-  info: 'ℹ',
+const variantIcons: Record<ToastVariant, ComponentType<SVGProps<SVGSVGElement>>> = {
+  success: CheckCircleIcon,
+  error: XCircleIcon,
+  info: InformationCircleIcon,
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -62,14 +64,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             className={`flex items-start gap-3 px-4 py-3 rounded-lg text-white text-sm shadow-lg pointer-events-auto ${variantClasses[t.variant]}`}
           >
-            <span className="font-bold mt-0.5">{variantIcons[t.variant]}</span>
+            {(() => { const Icon = variantIcons[t.variant]; return <Icon className="w-5 h-5 shrink-0 mt-0.5" />; })()}
             <span className="flex-1">{t.message}</span>
             <button
               onClick={() => removeToast(t.id)}
               className="text-white/70 hover:text-white ml-2"
               aria-label="Cerrar"
             >
-              ×
+              <XMarkIcon className="w-4 h-4" />
             </button>
           </div>
         ))}
