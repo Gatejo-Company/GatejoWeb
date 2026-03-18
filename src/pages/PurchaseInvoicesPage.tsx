@@ -23,6 +23,7 @@ import {
   usePatchPayment,
   useDeletePurchaseInvoice,
 } from '@/features/purchase-invoices/queries';
+import { CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/react/20/solid';
 import type { PurchaseInvoice } from '@/types/models';
 import type { AppError } from '@/api/types';
 
@@ -166,9 +167,9 @@ export function PurchaseInvoicesPage() {
     { key: 'paid', header: 'Pagado', render: (inv) => <span className="font-mono">{formatCurrency(inv.paid)}</span> },
     {
       key: 'status', header: 'Estado', render: (inv) => {
-        if (inv.paid >= inv.total) return <Badge variant="green">$$$ Pagado</Badge>;
-        if (inv.paid > 0) return <Badge variant="yellow">$$ Parcial</Badge>;
-        return <Badge variant="red">$ Sin pagar</Badge>;
+        if (inv.paid >= inv.total) return <Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge>;
+        if (inv.paid > 0) return <Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge>;
+        return <Badge variant="red"><XCircleIcon className="w-4 h-4 inline" /></Badge>;
       },
     },
     ...(isAdmin() ? [{
