@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { Badge } from '@/components/ui/Badge';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
 import { suppliersApi } from '@/api/endpoints/suppliers';
@@ -169,9 +170,9 @@ export function PurchaseInvoicesPage() {
     { key: 'paid', header: 'Pagado', render: (inv) => <span className="font-mono">{formatCurrency(inv.paid)}</span> },
     {
       key: 'status', header: 'Estado', render: (inv) => {
-        if (inv.paid >= inv.total) return <Badge variant="green" title="Pagado"><CheckCircleIcon className="w-4 h-4 inline" /></Badge>;
-        if (inv.paid > 0) return <Badge variant="yellow" title="Parcial"><ClockIcon className="w-4 h-4 inline" /></Badge>;
-        return <Badge variant="red" title="Sin pagar"><XCircleIcon className="w-4 h-4 inline" /></Badge>;
+        if (inv.paid >= inv.total) return <Tooltip label="Pagado"><Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>;
+        if (inv.paid > 0) return <Tooltip label="Parcial"><Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge></Tooltip>;
+        return <Tooltip label="Sin pagar"><Badge variant="red"><XCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>;
       },
     },
     ...(isAdmin() ? [{

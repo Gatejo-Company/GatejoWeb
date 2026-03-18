@@ -1,6 +1,8 @@
 import { Link } from 'react-router';
 import type { SaleInvoice } from '@/types/models';
 import { Badge } from '@/components/ui/Badge';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { CheckCircleIcon, ClockIcon, BanknotesIcon } from '@heroicons/react/20/solid';
 
 interface RecentSalesTableProps {
   invoices: SaleInvoice[];
@@ -56,12 +58,12 @@ export function RecentSalesTable({ invoices, isLoading }: RecentSalesTableProps)
             <td className="py-2">
               {inv.onCredit ? (
                 inv.paidAt ? (
-                  <Badge variant="green">Pagado</Badge>
+                  <Tooltip label="Pagado"><Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>
                 ) : (
-                  <Badge variant="yellow">Crédito</Badge>
+                  <Tooltip label="Crédito Pendiente"><Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge></Tooltip>
                 )
               ) : (
-                <Badge variant="green">Contado</Badge>
+                <Tooltip label="Contado"><Badge variant="green"><BanknotesIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               )}
             </td>
           </tr>

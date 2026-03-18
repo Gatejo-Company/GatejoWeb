@@ -1,5 +1,7 @@
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { CheckCircleIcon, ClockIcon, BanknotesIcon } from '@heroicons/react/20/solid';
 import type { SaleInvoice } from '@/types/models';
 
 interface Props {
@@ -29,11 +31,11 @@ export function SaleInvoiceDetailModal({ invoice, onClose }: Props) {
             <span className="text-gray-500">Tipo</span>
             <p className="mt-0.5">
               {!invoice.onCredit ? (
-                <Badge variant="green">Contado</Badge>
+                <Tooltip label="Contado"><Badge variant="green"><BanknotesIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               ) : invoice.paidAt ? (
-                <Badge variant="green">Crédito — Pagado</Badge>
+                <Tooltip label="Crédito — Pagado"><Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               ) : (
-                <Badge variant="yellow">Crédito — Pendiente</Badge>
+                <Tooltip label="Crédito — Pendiente"><Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge></Tooltip>
               )}
             </p>
           </div>
