@@ -20,25 +20,25 @@ export function DashboardPage() {
         <StatCard
           label="Total de Productos"
           value={totalProducts}
-          icon={<CubeIcon className="w-6 h-6" />}
+          icon={<CubeIcon className="w-6 h-6 text-amber-500" />}
           isLoading={products.isLoading}
         />
         <StatCard
           label="Facturas de Venta"
           value={totalSales}
-          icon={<DocumentTextIcon className="w-6 h-6" />}
+          icon={<DocumentTextIcon className="w-6 h-6 text-teal-500" />}
           isLoading={recentSales.isLoading}
         />
         <StatCard
           label="Facturas de Compra"
           value={totalPurchases}
-          icon={<ShoppingCartIcon className="w-6 h-6" />}
+          icon={<ShoppingCartIcon className="w-6 h-6 text-orange-500" />}
           isLoading={recentPurchases.isLoading}
         />
         <StatCard
           label="Crédito Pendiente"
           value={pendingCreditCount}
-          icon={<ClockIcon className="w-6 h-6" />}
+          icon={<ClockIcon className="w-6 h-6 text-rose-500" />}
           isLoading={pendingCredit.isLoading}
         />
       </div>
