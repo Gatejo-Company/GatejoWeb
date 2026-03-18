@@ -1,6 +1,6 @@
-import { CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/react/20/solid';
 import type { PurchaseInvoice } from '@/types/models';
 import { Badge } from '@/components/ui/Badge';
+import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 interface RecentPurchasesTableProps {
   invoices: PurchaseInvoice[];
@@ -50,11 +50,12 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
             <td className="py-2 font-medium">{formatCurrency(inv.total)}</td>
             <td className="py-2">
               {inv.paid >= inv.total ? (
-                <Badge variant="green"><CheckCircleIcon className="w-4 h-4 inline" /></Badge>
+
+                <Badge variant="green"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>
               ) : inv.paid > 0 ? (
-                <Badge variant="yellow"><ClockIcon className="w-4 h-4 inline" /></Badge>
+                <Badge variant="yellow"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>
               ) : (
-                <Badge variant="red"><XCircleIcon className="w-4 h-4 inline" /></Badge>
+                <Badge variant="red"><CurrencyDollarIcon className="w-4 h-4 inline" /></Badge>
               )}
             </td>
           </tr>
