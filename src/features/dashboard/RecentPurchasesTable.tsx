@@ -30,7 +30,7 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
   }
 
   return (
-    <table className="w-full mt-4 text-sm">
+    <div className="overflow-x-auto mt-4"><table className="w-full text-sm">
       <thead>
         <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
           <th className="pb-2 font-medium">ID</th>
@@ -59,6 +59,6 @@ export function RecentPurchasesTable({ invoices, isLoading }: RecentPurchasesTab
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></div>
   );
 }

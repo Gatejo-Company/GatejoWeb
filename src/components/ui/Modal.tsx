@@ -40,9 +40,9 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
   return (
     <dialog
       ref={dialogRef}
-      className={`w-full ${maxWidthClasses[maxWidth]} rounded-xl p-0 shadow-xl backdrop:bg-black/40 open:animate-none m-auto`}
+      className={`w-[calc(100%-2rem)] sm:w-full ${maxWidthClasses[maxWidth]} rounded-xl p-0 shadow-xl backdrop:bg-black/40 open:animate-none m-auto max-h-[90vh] overflow-y-auto`}
     >
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
         <h2 className="text-base font-semibold text-gray-900">{title}</h2>
         <button
           onClick={onClose}
@@ -52,7 +52,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
           ×
         </button>
       </div>
-      <div className="px-6 py-5">{children}</div>
+      <div className="px-4 sm:px-6 py-5">{children}</div>
     </dialog>
   );
 }

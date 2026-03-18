@@ -93,7 +93,7 @@ export function SaleInvoicesPage() {
       title="Facturas de Venta"
       action={isAdmin() ? <Button onClick={() => setIsFormOpen(true)}>+ Nueva Factura</Button> : undefined}
     >
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <select
           value={filterOnCredit}
           onChange={(e) => { setFilterOnCredit(e.target.value); pagination.reset(); }}
