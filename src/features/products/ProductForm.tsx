@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
-import { categoriesApi } from '@/api/endpoints/categories';
-import { brandsApi } from '@/api/endpoints/brands';
+import { useToast } from '@/components/ui/Toast';
+import { useCategoryStore } from '@/features/categories/store';
+import { useBrandStore } from '@/features/brands/store';
+import { useProductStore } from './store';
 import { createProductSchema, updateProductSchema, type CreateProductFormValues, type UpdateProductFormValues } from './productSchema';
-import { useCreateProduct, useUpdateProduct, useProduct } from './queries';
 import type { AppError } from '@/api/types';
 
 interface ProductFormProps {
@@ -26,22 +26,17 @@ function extractApiError(error: unknown): string {
 
 export function ProductForm({ editId, onClose }: ProductFormProps) {
   const isEditing = !!editId;
-  const { data: product } = useProduct(editId ?? 0);
+  const toast = useToast();
 
-  const categories = useQuery({
-    queryKey: ['categories', 'all'],
-    queryFn: () => categoriesApi.list({ pageSize: 100 }),
-    staleTime: Infinity,
-  });
+  const { detail, fetchDetail, create, update, isCreating, isUpdating } = useProductStore();
+  const { selectItems: categories, fetchSelectItems: fetchCategories } = useCategoryStore();
+  const { selectItems: brands, fetchSelectItems: fetchBrands } = useBrandStore();
 
-  const brands = useQuery({
-    queryKey: ['brands', 'all'],
-    queryFn: () => brandsApi.list({ pageSize: 100 }),
-    staleTime: Infinity,
-  });
-
-  const createMutation = useCreateProduct();
-  const updateMutation = useUpdateProduct();
+  useEffect(() => {
+    void fetchCategories();
+    void fetchBrands();
+    if (editId) void fetchDetail(editId);
+  }, [editId]);
 
   const schema = isEditing ? updateProductSchema : createProductSchema;
   const {
@@ -53,24 +48,26 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
-    if (product && isEditing) {
+    if (detail && isEditing) {
       reset({
-        name: product.name,
-        description: product.description,
-        categoryId: product.categoryId,
-        brandId: product.brandId,
-        minStock: product.minStock,
+        name: detail.name,
+        description: detail.description,
+        categoryId: detail.categoryId,
+        brandId: detail.brandId,
+        minStock: detail.minStock,
       });
     }
-  }, [product, isEditing, reset]);
+  }, [detail, isEditing, reset]);
 
   const onSubmit = async (values: FormValues) => {
     try {
       if (isEditing && editId) {
         const { name, description, categoryId, brandId, minStock } = values as UpdateProductFormValues;
-        await updateMutation.mutateAsync({ id: editId, body: { name, description, categoryId, brandId, minStock } });
+        await update(editId, { name, description, categoryId, brandId, minStock });
+        toast.success('Product updated successfully');
       } else {
-        await createMutation.mutateAsync(values as CreateProductFormValues);
+        await create(values as CreateProductFormValues);
+        toast.success('Product created successfully');
       }
       onClose();
     } catch (err) {
@@ -85,7 +82,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
     }
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isPending = isCreating || isUpdating || isSubmitting;
 
   return (
     <Modal
@@ -117,7 +114,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
               {...register('categoryId', { valueAsNumber: true })}
             >
               <option value="">Seleccionar categoría</option>
-              {categories.data?.items.map((c) => (
+              {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -130,7 +127,7 @@ export function ProductForm({ editId, onClose }: ProductFormProps) {
               {...register('brandId', { valueAsNumber: true })}
             >
               <option value="">Seleccionar marca</option>
-              {brands.data?.items.map((b) => (
+              {brands.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
             </select>

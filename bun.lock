@@ -8,7 +8,7 @@
         "@heroicons/react": "^2.2.0",
         "@hookform/resolvers": "^5.2.2",
         "@tailwindcss/vite": "^4.2.1",
-        "@vercel/speed-insights": "^2.0.0",
+        "@tanstack/react-query": "^5.90.21",
         "axios": "^1.13.6",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
@@ -16,12 +16,12 @@
         "react-router": "7",
         "tailwindcss": "^4.2.1",
         "zod": "^4.3.6",
+        "zustand": "^5.0.12",
       },
       "devDependencies": {
         "@babel/core": "^7.29.0",
         "@eslint/js": "^9.39.4",
         "@rolldown/plugin-babel": "^0.2.0",
-        "@tanstack/react-query-devtools": "^5.91.3",
         "@types/babel__core": "^7.20.5",
         "@types/node": "^24.12.0",
         "@types/react": "^19.2.14",
@@ -1086,31 +1086,6 @@
         }
       },
       "sha512-zm6xx8UT/Xy2oSr2ZXD0pZo7Jx2XsCoID2IUh9YSTFRu7z+WdwYTRk6LhUftm1crwqbuoF6I8zAFeCMw0YjwDg=="
-    ],
-    "@vercel/speed-insights": [
-      "@vercel/speed-insights@2.0.0",
-      "",
-      {
-        "peerDependencies": {
-          "@sveltejs/kit": "^1 || ^2",
-          "next": ">= 13",
-          "nuxt": ">= 3",
-          "react": "^18 || ^19 || ^19.0.0-rc",
-          "svelte": ">= 4",
-          "vue": "^3",
-          "vue-router": "^4"
-        },
-        "optionalPeers": [
-          "@sveltejs/kit",
-          "next",
-          "nuxt",
-          "react",
-          "svelte",
-          "vue",
-          "vue-router"
-        ]
-      },
-      "sha512-jwkNcrTeafWxjmWq4AHBaptSqZiJkYU5adLC9QBSqeim0GcqDMgN5Ievh8OG1rJ6W3A4l1oiP7qr9CWxGuzu3w=="
     ],
     "@vitejs/plugin-react": [
       "@vitejs/plugin-react@6.0.0",

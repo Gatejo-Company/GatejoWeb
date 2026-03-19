@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,12 +12,8 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import {
-  useCategories,
-  useCreateCategory,
-  useUpdateCategory,
-  useDeleteCategory,
-} from '@/features/categories/queries';
+import { useCategoryStore } from '@/features/categories/store';
+import { useToast } from '@/components/ui/Toast';
 import type { Category } from '@/types/models';
 
 const schema = z.object({
@@ -43,17 +39,16 @@ const columns: Column<Category>[] = [
 export function CategoriesPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Category | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data, isLoading } = useCategories({
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-  });
-  const createMutation = useCreateCategory();
-  const updateMutation = useUpdateCategory();
-  const deleteMutation = useDeleteCategory();
+  const { data, isLoading, isSaving, isDeleting, fetch, create, update, delete: deleteCategory } = useCategoryStore();
+
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
 
   const {
     register,
@@ -81,12 +76,18 @@ export function CategoriesPage() {
 
   const onSubmit = async (values: FormValues) => {
     const body = { name: values.name, description: values.description };
-    if (editingItem) {
-      await updateMutation.mutateAsync({ id: editingItem.id, body });
-    } else {
-      await createMutation.mutateAsync(body);
+    try {
+      if (editingItem) {
+        await update(editingItem.id, body);
+        toast.success('Category updated');
+      } else {
+        await create(body);
+        toast.success('Category created');
+      }
+      closeForm();
+    } catch {
+      toast.error(editingItem ? 'Failed to update category' : 'Failed to create category');
     }
-    closeForm();
   };
 
   const handleDelete = (id: number) => setDeletingId(id);
@@ -105,7 +106,7 @@ export function CategoriesPage() {
                 size="sm"
                 variant="danger"
                 onClick={() => handleDelete(item.id)}
-                isLoading={deleteMutation.isPending}
+                isLoading={isDeleting}
               >
                 Eliminar
               </Button>
@@ -115,7 +116,7 @@ export function CategoriesPage() {
       ]
     : [];
 
-  const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isPending = isSaving || isSubmitting;
 
   return (
     <PageLayout
@@ -163,7 +164,17 @@ export function CategoriesPage() {
         title="Eliminar categoría"
         message="¿Estás seguro de que deseas eliminar esta categoría?"
         confirmLabel="Eliminar"
-        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onConfirm={async () => {
+          if (deletingId !== null) {
+            try {
+              await deleteCategory(deletingId);
+              toast.success('Category deleted');
+            } catch {
+              toast.error('Failed to delete category');
+            }
+          }
+          setDeletingId(null);
+        }}
         onCancel={() => setDeletingId(null)}
       />
     </PageLayout>

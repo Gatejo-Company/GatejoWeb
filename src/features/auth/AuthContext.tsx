@@ -13,7 +13,7 @@ import {
   getRefreshToken,
   getAccessToken,
 } from '@/api/client';
-import { authApi, type LoginPayload } from '@/api/endpoints/auth';
+import { AuthApi, type LoginPayload } from '@/api/endpoints/auth';
 
 interface AuthState {
   user: AuthUser | null;
@@ -108,8 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedRefreshToken) {
       // Refresh in background to get fresh tokens
       const inLocalStorage = !!localStorage.getItem('refreshToken');
-      authApi
-        .refresh(storedRefreshToken)
+      AuthApi.refresh(storedRefreshToken)
         .then((data) => {
           setAccessToken(data.token);
           setRefreshToken(data.refreshToken, inLocalStorage);
@@ -134,8 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (credentials: LoginPayload, rememberMe: boolean) => {
-    const data = await authApi.login(credentials);
+  const handleLogin = async (credentials: LoginPayload, rememberMe: boolean) => {
+    const data = await AuthApi.login(credentials);
     setAccessToken(data.token);
     setRefreshToken(data.refreshToken, rememberMe);
     const user = decodeJwtUser(data.token);
@@ -144,9 +143,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
-      await authApi.logout();
+      await AuthApi.logout();
     } finally {
       clearAuth();
       dispatch({ type: 'CLEAR_USER' });
@@ -157,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user: state.user, isLoading: state.isLoading, isAdmin, login, logout }}
+      value={{ user: state.user, isLoading: state.isLoading, isAdmin, login: handleLogin, logout: handleLogout }}
     >
       {children}
     </AuthContext.Provider>

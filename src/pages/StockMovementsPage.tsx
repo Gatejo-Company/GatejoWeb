@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery, useMutation } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
@@ -12,9 +11,8 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { stockMovementsApi, movementTypesApi } from '@/api/endpoints/stockMovements';
-import { productsApi } from '@/api/endpoints/products';
-import { queryClient } from '@/lib/queryClient';
+import { useStockMovementStore } from '@/features/stock-movements/store';
+import { useProductStore } from '@/features/products/store';
 import { useToast } from '@/components/ui/Toast';
 import type { StockMovement } from '@/types/models';
 import type { AppError } from '@/api/types';
@@ -35,24 +33,17 @@ export function StockMovementsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const toast = useToast();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['stock-movements', 'list', { page: pagination.page, pageSize: pagination.pageSize }],
-    queryFn: () => stockMovementsApi.list({ page: pagination.page, pageSize: pagination.pageSize }),
-  });
+  const { data, isLoading, isCreating, movementTypes, fetch, fetchMovementTypes, create } = useStockMovementStore();
+  const { selectItems: products, fetchSelectItems: fetchProducts } = useProductStore();
 
-  const products = useQuery({ queryKey: ['products', 'all-for-select'], queryFn: () => productsApi.list({ pageSize: 200, active: true }), staleTime: 1000 * 60 * 5 });
-  const movementTypes = useQuery({ queryKey: ['movement-types'], queryFn: () => movementTypesApi.list({ pageSize: 50 }), staleTime: Infinity });
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
 
-  const createMutation = useMutation({
-    mutationFn: (body: FormValues) => stockMovementsApi.create(body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['stock-movements'] });
-      void queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Movimiento de stock creado');
-      setIsFormOpen(false);
-    },
-    onError: () => toast.error('Error al crear el movimiento de stock'),
-  });
+  useEffect(() => {
+    void fetchMovementTypes();
+    void fetchProducts();
+  }, []);
 
   const {
     register, handleSubmit, reset, setError,
@@ -61,8 +52,10 @@ export function StockMovementsPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await createMutation.mutateAsync(values);
+      await create(values);
+      toast.success('Movimiento de stock creado');
       reset();
+      setIsFormOpen(false);
     } catch (err) {
       const appError = err as AppError;
       setError('root', { message: appError?.detail ?? 'Error' });
@@ -99,13 +92,13 @@ export function StockMovementsPage() {
             <FormField label="Producto" htmlFor="sm-product" error={errors.productId?.message} required>
               <select id="sm-product" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200" {...register('productId', { valueAsNumber: true })}>
                 <option value={0}>Seleccionar producto</option>
-                {products.data?.items.map((p) => <option key={p.id} value={p.id}>{p.name} (stock: {p.currentStock})</option>)}
+                {products.map((p) => <option key={p.id} value={p.id}>{p.name} (stock: {p.currentStock})</option>)}
               </select>
             </FormField>
             <FormField label="Tipo de Movimiento" htmlFor="sm-type" error={errors.typeId?.message} required>
               <select id="sm-type" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200" {...register('typeId', { valueAsNumber: true })}>
                 <option value={0}>Seleccionar tipo</option>
-                {movementTypes.data?.items.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                {movementTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </FormField>
             <FormField label="Cantidad (positivo = entrada, negativo = salida)" htmlFor="sm-qty" error={errors.quantity?.message} required>
@@ -116,7 +109,7 @@ export function StockMovementsPage() {
             </FormField>
             <div className="flex justify-end gap-3 pt-2">
               <Button type="button" variant="secondary" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
-              <Button type="submit" isLoading={createMutation.isPending || isSubmitting}>Crear</Button>
+              <Button type="submit" isLoading={isCreating || isSubmitting}>Crear</Button>
             </div>
           </form>
         </Modal>

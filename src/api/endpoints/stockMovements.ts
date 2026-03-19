@@ -16,26 +16,26 @@ export interface CreateStockMovementRequest {
   notes?: string;
 }
 
-export const stockMovementsApi = {
-  list: async (params?: StockMovementListParams): Promise<PaginatedData<StockMovement>> => {
+export class StockMovementsApi {
+  static async list(params?: StockMovementListParams): Promise<PaginatedData<StockMovement>> {
     const response = await client.get<PaginatedData<StockMovement>>('/stock-movements', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<StockMovement> => {
+  static async get(id: number): Promise<StockMovement> {
     const response = await client.get<StockMovement>(`/stock-movements/${id}`);
     return response.data;
-  },
+  }
 
-  create: async (body: CreateStockMovementRequest): Promise<StockMovement> => {
+  static async create(body: CreateStockMovementRequest): Promise<StockMovement> {
     const response = await client.post<StockMovement>('/stock-movements', body);
     return response.data;
-  },
-};
+  }
+}
 
-export const movementTypesApi = {
-  list: async (params?: PaginationParams): Promise<PaginatedData<MovementType>> => {
+export class MovementTypesApi {
+  static async list(params?: PaginationParams): Promise<PaginatedData<MovementType>> {
     const response = await client.get<PaginatedData<MovementType>>('/movement-types', { params });
     return response.data;
-  },
-};
+  }
+}
