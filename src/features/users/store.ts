@@ -1,5 +1,13 @@
 import { create } from 'zustand';
-import { usersApi, rolesApi, type UpdateUserRequest } from '@/api/endpoints/users';
+import {
+  listUsers,
+  getUser,
+  updateUser,
+  patchUserActive,
+  deleteUser,
+  listRoles,
+  type UpdateUserRequest,
+} from '@/api/endpoints/users';
 import type { PaginatedData, PaginationParams } from '@/api/types';
 import type { User, Role } from '@/types/models';
 
@@ -38,7 +46,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await usersApi.list(params);
+      const data = await listUsers(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -49,7 +57,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async fetchDetail(id) {
     set({ isLoadingDetail: true });
     try {
-      const detail = await usersApi.get(id);
+      const detail = await getUser(id);
       set({ detail, isLoadingDetail: false });
     } catch (error) {
       set({ isLoadingDetail: false });
@@ -60,7 +68,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async fetchRoles() {
     set({ isLoadingRoles: true });
     try {
-      const result = await rolesApi.list();
+      const result = await listRoles();
       set({ roles: result.items, isLoadingRoles: false });
     } catch (error) {
       set({ isLoadingRoles: false });
@@ -71,7 +79,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async update(id, body) {
     set({ isSaving: true });
     try {
-      await usersApi.update(id, body);
+      await updateUser(id, body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -83,7 +91,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await usersApi.delete(id);
+      await deleteUser(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -95,7 +103,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   async patchActive(id, active) {
     set({ isPatching: true });
     try {
-      await usersApi.patchActive(id, active);
+      await patchUserActive(id, active);
       set({ isPatching: false });
       await get().fetch(get()._params);
     } catch (error) {

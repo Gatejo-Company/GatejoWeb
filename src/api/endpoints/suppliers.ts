@@ -9,28 +9,26 @@ export interface SupplierRequest {
   notes?: string;
 }
 
-export const suppliersApi = {
-  list: async (params?: PaginationParams): Promise<PaginatedData<Supplier>> => {
-    const response = await client.get<PaginatedData<Supplier>>('/Suppliers', { params });
-    return response.data;
-  },
+export async function listSuppliers(params?: PaginationParams): Promise<PaginatedData<Supplier>> {
+  const response = await client.get<PaginatedData<Supplier>>('/Suppliers', { params });
+  return response.data;
+}
 
-  get: async (id: number): Promise<Supplier> => {
-    const response = await client.get<Supplier>(`/Suppliers/${id}`);
-    return response.data;
-  },
+export async function getSupplier(id: number): Promise<Supplier> {
+  const response = await client.get<Supplier>(`/Suppliers/${id}`);
+  return response.data;
+}
 
-  create: async (body: SupplierRequest): Promise<Supplier> => {
-    const response = await client.post<Supplier>('/Suppliers', body);
-    return response.data;
-  },
+export async function createSupplier(body: SupplierRequest): Promise<Supplier> {
+  const response = await client.post<Supplier>('/Suppliers', body);
+  return response.data;
+}
 
-  update: async (id: number, body: SupplierRequest): Promise<Supplier> => {
-    const response = await client.put<Supplier>(`/Suppliers/${id}`, body);
-    return response.data;
-  },
+export async function updateSupplier(id: number, body: SupplierRequest): Promise<Supplier> {
+  const response = await client.put<Supplier>(`/Suppliers/${id}`, body);
+  return response.data;
+}
 
-  delete: async (id: number): Promise<void> => {
-    await client.delete(`/Suppliers/${id}`);
-  },
-};
+export async function deleteSupplier(id: number): Promise<void> {
+  await client.delete(`/Suppliers/${id}`);
+}

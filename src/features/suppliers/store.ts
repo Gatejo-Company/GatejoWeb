@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { suppliersApi, type SupplierRequest } from '@/api/endpoints/suppliers';
+import { listSuppliers, createSupplier, updateSupplier, deleteSupplier, type SupplierRequest } from '@/api/endpoints/suppliers';
 import type { PaginatedData, PaginationParams } from '@/api/types';
 import type { Supplier } from '@/types/models';
 
@@ -31,7 +31,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await suppliersApi.list(params);
+      const data = await listSuppliers(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -42,7 +42,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async fetchSelectItems() {
     set({ isLoadingSelect: true });
     try {
-      const result = await suppliersApi.list({ pageSize: 200 });
+      const result = await listSuppliers({ pageSize: 200 });
       set({ selectItems: result.items, isLoadingSelect: false });
     } catch (error) {
       set({ isLoadingSelect: false });
@@ -53,7 +53,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async create(body) {
     set({ isSaving: true });
     try {
-      await suppliersApi.create(body);
+      await createSupplier(body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -65,7 +65,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async update(id, body) {
     set({ isSaving: true });
     try {
-      await suppliersApi.update(id, body);
+      await updateSupplier(id, body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -77,7 +77,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await suppliersApi.delete(id);
+      await deleteSupplier(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {

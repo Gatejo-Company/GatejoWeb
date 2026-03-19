@@ -110,8 +110,8 @@ client.interceptors.response.use(
 
       try {
         // Import here to avoid circular dependency
-        const { authApi } = await import('./endpoints/auth');
-        const data = await authApi.refresh(storedRefreshToken);
+        const { refreshToken } = await import('./endpoints/auth');
+        const data = await refreshToken(storedRefreshToken);
         const inLocalStorage = !!localStorage.getItem('refreshToken');
         setAccessToken(data.token);
         setRefreshToken(data.refreshToken, inLocalStorage);

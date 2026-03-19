@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import {
-  saleInvoicesApi,
+  listSaleInvoices,
+  getPendingCreditInvoices,
+  createSaleInvoice,
+  paySaleInvoice,
+  deleteSaleInvoice,
+  reverseSaleInvoice,
   type SaleInvoiceListParams,
   type CreateSaleInvoiceRequest,
 } from '@/api/endpoints/saleInvoices';
@@ -40,7 +45,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await saleInvoicesApi.list(params);
+      const data = await listSaleInvoices(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -51,7 +56,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async fetchPendingCredit(params = {}) {
     set({ _pendingCreditParams: params });
     try {
-      const pendingCredit = await saleInvoicesApi.getPendingCredit(params);
+      const pendingCredit = await getPendingCreditInvoices(params);
       set({ pendingCredit });
     } catch (error) {
       throw error;
@@ -61,7 +66,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async create(body) {
     set({ isCreating: true });
     try {
-      await saleInvoicesApi.create(body);
+      await createSaleInvoice(body);
       set({ isCreating: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -73,7 +78,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async pay(id) {
     set({ isPaying: true });
     try {
-      await saleInvoicesApi.pay(id);
+      await paySaleInvoice(id);
       set({ isPaying: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -85,7 +90,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await saleInvoicesApi.delete(id);
+      await deleteSaleInvoice(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -97,7 +102,7 @@ export const useSaleInvoiceStore = create<SaleInvoiceStore>((set, get) => ({
   async reverse(id) {
     set({ isReversing: true });
     try {
-      await saleInvoicesApi.reverse(id);
+      await reverseSaleInvoice(id);
       set({ isReversing: false });
       await get().fetch(get()._params);
     } catch (error) {

@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import {
-  productsApi,
+  listProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  patchProductPrice,
+  patchProductActive,
+  getProductPriceHistory,
   type ProductListParams,
   type CreateProductRequest,
   type UpdateProductRequest,
@@ -51,7 +58,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await productsApi.list(params);
+      const data = await listProducts(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -62,7 +69,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async fetchSelectItems() {
     set({ isLoadingSelect: true });
     try {
-      const result = await productsApi.list({ pageSize: 200, active: true });
+      const result = await listProducts({ pageSize: 200, active: true });
       set({ selectItems: result.items, isLoadingSelect: false });
     } catch (error) {
       set({ isLoadingSelect: false });
@@ -73,7 +80,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async fetchDetail(id) {
     set({ isLoadingDetail: true });
     try {
-      const detail = await productsApi.get(id);
+      const detail = await getProduct(id);
       set({ detail, isLoadingDetail: false });
     } catch (error) {
       set({ isLoadingDetail: false });
@@ -83,7 +90,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
   async fetchPriceHistory(id, params) {
     try {
-      const priceHistory = await productsApi.getPriceHistory(id, params);
+      const priceHistory = await getProductPriceHistory(id, params);
       set({ priceHistory });
     } catch (error) {
       throw error;
@@ -93,7 +100,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async create(body) {
     set({ isCreating: true });
     try {
-      await productsApi.create(body);
+      await createProduct(body);
       set({ isCreating: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -105,7 +112,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async update(id, body) {
     set({ isUpdating: true });
     try {
-      await productsApi.update(id, body);
+      await updateProduct(id, body);
       set({ isUpdating: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -117,7 +124,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await productsApi.delete(id);
+      await deleteProduct(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -129,7 +136,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async patchPrice(id, body) {
     set({ isPatching: true });
     try {
-      await productsApi.patchPrice(id, body);
+      await patchProductPrice(id, body);
       set({ isPatching: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -141,7 +148,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   async patchActive(id, active) {
     set({ isPatching: true });
     try {
-      await productsApi.patchActive(id, active);
+      await patchProductActive(id, active);
       set({ isPatching: false });
       await get().fetch(get()._params);
     } catch (error) {
