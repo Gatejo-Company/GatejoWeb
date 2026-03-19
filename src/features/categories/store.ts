@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { listCategories, createCategory, updateCategory, deleteCategory, type CategoryRequest } from '@/api/endpoints/categories';
+import { CategoriesApi, type CategoryRequest } from '@/api/endpoints/categories';
 import type { PaginatedData, PaginationParams } from '@/api/types';
 import type { Category } from '@/types/models';
 
@@ -31,7 +31,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await listCategories(params);
+      const data = await CategoriesApi.list(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -42,7 +42,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   async fetchSelectItems() {
     set({ isLoadingSelect: true });
     try {
-      const result = await listCategories({ pageSize: 100 });
+      const result = await CategoriesApi.list({ pageSize: 100 });
       set({ selectItems: result.items, isLoadingSelect: false });
     } catch (error) {
       set({ isLoadingSelect: false });
@@ -53,7 +53,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   async create(body) {
     set({ isSaving: true });
     try {
-      await createCategory(body);
+      await CategoriesApi.create(body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -65,7 +65,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   async update(id, body) {
     set({ isSaving: true });
     try {
-      await updateCategory(id, body);
+      await CategoriesApi.update(id, body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -77,7 +77,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await deleteCategory(id);
+      await CategoriesApi.delete(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {

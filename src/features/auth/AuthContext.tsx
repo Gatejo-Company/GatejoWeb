@@ -13,7 +13,7 @@ import {
   getRefreshToken,
   getAccessToken,
 } from '@/api/client';
-import { login, refreshToken, logout, type LoginPayload } from '@/api/endpoints/auth';
+import { AuthApi, type LoginPayload } from '@/api/endpoints/auth';
 
 interface AuthState {
   user: AuthUser | null;
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedRefreshToken) {
       // Refresh in background to get fresh tokens
       const inLocalStorage = !!localStorage.getItem('refreshToken');
-      refreshToken(storedRefreshToken)
+      AuthApi.refresh(storedRefreshToken)
         .then((data) => {
           setAccessToken(data.token);
           setRefreshToken(data.refreshToken, inLocalStorage);
@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleLogin = async (credentials: LoginPayload, rememberMe: boolean) => {
-    const data = await login(credentials);
+    const data = await AuthApi.login(credentials);
     setAccessToken(data.token);
     setRefreshToken(data.refreshToken, rememberMe);
     const user = decodeJwtUser(data.token);
@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await AuthApi.logout();
     } finally {
       clearAuth();
       dispatch({ type: 'CLEAR_USER' });

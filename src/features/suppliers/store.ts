@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { listSuppliers, createSupplier, updateSupplier, deleteSupplier, type SupplierRequest } from '@/api/endpoints/suppliers';
+import { SuppliersApi, type SupplierRequest } from '@/api/endpoints/suppliers';
 import type { PaginatedData, PaginationParams } from '@/api/types';
 import type { Supplier } from '@/types/models';
 
@@ -31,7 +31,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await listSuppliers(params);
+      const data = await SuppliersApi.list(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -42,7 +42,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async fetchSelectItems() {
     set({ isLoadingSelect: true });
     try {
-      const result = await listSuppliers({ pageSize: 200 });
+      const result = await SuppliersApi.list({ pageSize: 200 });
       set({ selectItems: result.items, isLoadingSelect: false });
     } catch (error) {
       set({ isLoadingSelect: false });
@@ -53,7 +53,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async create(body) {
     set({ isSaving: true });
     try {
-      await createSupplier(body);
+      await SuppliersApi.create(body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -65,7 +65,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async update(id, body) {
     set({ isSaving: true });
     try {
-      await updateSupplier(id, body);
+      await SuppliersApi.update(id, body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -77,7 +77,7 @@ export const useSupplierStore = create<SupplierStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await deleteSupplier(id);
+      await SuppliersApi.delete(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {

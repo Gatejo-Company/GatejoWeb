@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { listProducts } from '@/api/endpoints/products';
-import { listSaleInvoices, getPendingCreditInvoices } from '@/api/endpoints/saleInvoices';
-import { listPurchaseInvoices } from '@/api/endpoints/purchaseInvoices';
+import { ProductsApi } from '@/api/endpoints/products';
+import { SaleInvoicesApi } from '@/api/endpoints/saleInvoices';
+import { PurchaseInvoicesApi } from '@/api/endpoints/purchaseInvoices';
 import type { SaleInvoice, PurchaseInvoice } from '@/types/models';
 
 interface DashboardStore {
@@ -29,10 +29,10 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     set({ isLoading: true });
     try {
       const [products, recentSales, recentPurchases, pendingCredit] = await Promise.all([
-        listProducts({ page: 1, pageSize: 1 }),
-        listSaleInvoices({ page: 1, pageSize: 5 }),
-        listPurchaseInvoices({ page: 1, pageSize: 5 }),
-        getPendingCreditInvoices({ page: 1, pageSize: 1 }),
+        ProductsApi.list({ page: 1, pageSize: 1 }),
+        SaleInvoicesApi.list({ page: 1, pageSize: 5 }),
+        PurchaseInvoicesApi.list({ page: 1, pageSize: 5 }),
+        SaleInvoicesApi.getPendingCredit({ page: 1, pageSize: 1 }),
       ]);
       set({
         totalProducts: products.totalCount,

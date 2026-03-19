@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import {
-  listStockMovements,
-  listMovementTypes,
-  createStockMovement,
+  StockMovementsApi,
+  MovementTypesApi,
   type StockMovementListParams,
   type CreateStockMovementRequest,
 } from '@/api/endpoints/stockMovements';
@@ -33,7 +32,7 @@ export const useStockMovementStore = create<StockMovementStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await listStockMovements(params);
+      const data = await StockMovementsApi.list(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -44,7 +43,7 @@ export const useStockMovementStore = create<StockMovementStore>((set, get) => ({
   async fetchMovementTypes() {
     set({ isLoadingTypes: true });
     try {
-      const result = await listMovementTypes({ pageSize: 50 });
+      const result = await MovementTypesApi.list({ pageSize: 50 });
       set({ movementTypes: result.items, isLoadingTypes: false });
     } catch (error) {
       set({ isLoadingTypes: false });
@@ -55,7 +54,7 @@ export const useStockMovementStore = create<StockMovementStore>((set, get) => ({
   async create(body) {
     set({ isCreating: true });
     try {
-      await createStockMovement(body);
+      await StockMovementsApi.create(body);
       set({ isCreating: false });
       await get().fetch(get()._params);
     } catch (error) {

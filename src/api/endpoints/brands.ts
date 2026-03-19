@@ -6,26 +6,28 @@ export interface BrandRequest {
   name: string;
 }
 
-export async function listBrands(params?: PaginationParams): Promise<PaginatedData<Brand>> {
-  const response = await client.get<PaginatedData<Brand>>('/Brands', { params });
-  return response.data;
-}
+export class BrandsApi {
+  static async list(params?: PaginationParams): Promise<PaginatedData<Brand>> {
+    const response = await client.get<PaginatedData<Brand>>('/Brands', { params });
+    return response.data;
+  }
 
-export async function getBrand(id: number): Promise<Brand> {
-  const response = await client.get<Brand>(`/Brands/${id}`);
-  return response.data;
-}
+  static async get(id: number): Promise<Brand> {
+    const response = await client.get<Brand>(`/Brands/${id}`);
+    return response.data;
+  }
 
-export async function createBrand(body: BrandRequest): Promise<Brand> {
-  const response = await client.post<Brand>('/Brands', body);
-  return response.data;
-}
+  static async create(body: BrandRequest): Promise<Brand> {
+    const response = await client.post<Brand>('/Brands', body);
+    return response.data;
+  }
 
-export async function updateBrand(id: number, body: BrandRequest): Promise<Brand> {
-  const response = await client.put<Brand>(`/Brands/${id}`, body);
-  return response.data;
-}
+  static async update(id: number, body: BrandRequest): Promise<Brand> {
+    const response = await client.put<Brand>(`/Brands/${id}`, body);
+    return response.data;
+  }
 
-export async function deleteBrand(id: number): Promise<void> {
-  await client.delete(`/Brands/${id}`);
+  static async delete(id: number): Promise<void> {
+    await client.delete(`/Brands/${id}`);
+  }
 }

@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import {
-  listPurchaseInvoices,
-  createPurchaseInvoice,
-  patchPurchaseInvoicePayment,
-  deletePurchaseInvoice,
+  PurchaseInvoicesApi,
   type PurchaseInvoiceListParams,
   type CreatePurchaseInvoiceRequest,
 } from '@/api/endpoints/purchaseInvoices';
@@ -35,7 +32,7 @@ export const usePurchaseInvoiceStore = create<PurchaseInvoiceStore>((set, get) =
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await listPurchaseInvoices(params);
+      const data = await PurchaseInvoicesApi.list(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -46,7 +43,7 @@ export const usePurchaseInvoiceStore = create<PurchaseInvoiceStore>((set, get) =
   async create(body) {
     set({ isCreating: true });
     try {
-      await createPurchaseInvoice(body);
+      await PurchaseInvoicesApi.create(body);
       set({ isCreating: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -58,7 +55,7 @@ export const usePurchaseInvoiceStore = create<PurchaseInvoiceStore>((set, get) =
   async patchPayment(id, paid) {
     set({ isPatchingPayment: true });
     try {
-      await patchPurchaseInvoicePayment(id, paid);
+      await PurchaseInvoicesApi.patchPayment(id, paid);
       set({ isPatchingPayment: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -70,7 +67,7 @@ export const usePurchaseInvoiceStore = create<PurchaseInvoiceStore>((set, get) =
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await deletePurchaseInvoice(id);
+      await PurchaseInvoicesApi.delete(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {

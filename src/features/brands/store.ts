@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { listBrands, createBrand, updateBrand, deleteBrand, type BrandRequest } from '@/api/endpoints/brands';
+import { BrandsApi, type BrandRequest } from '@/api/endpoints/brands';
 import type { PaginatedData, PaginationParams } from '@/api/types';
 import type { Brand } from '@/types/models';
 
@@ -31,7 +31,7 @@ export const useBrandStore = create<BrandStore>((set, get) => ({
   async fetch(params = {}) {
     set({ isLoading: true, _params: params });
     try {
-      const data = await listBrands(params);
+      const data = await BrandsApi.list(params);
       set({ data, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -42,7 +42,7 @@ export const useBrandStore = create<BrandStore>((set, get) => ({
   async fetchSelectItems() {
     set({ isLoadingSelect: true });
     try {
-      const result = await listBrands({ pageSize: 100 });
+      const result = await BrandsApi.list({ pageSize: 100 });
       set({ selectItems: result.items, isLoadingSelect: false });
     } catch (error) {
       set({ isLoadingSelect: false });
@@ -53,7 +53,7 @@ export const useBrandStore = create<BrandStore>((set, get) => ({
   async create(body) {
     set({ isSaving: true });
     try {
-      await createBrand(body);
+      await BrandsApi.create(body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -65,7 +65,7 @@ export const useBrandStore = create<BrandStore>((set, get) => ({
   async update(id, body) {
     set({ isSaving: true });
     try {
-      await updateBrand(id, body);
+      await BrandsApi.update(id, body);
       set({ isSaving: false });
       await get().fetch(get()._params);
     } catch (error) {
@@ -77,7 +77,7 @@ export const useBrandStore = create<BrandStore>((set, get) => ({
   async delete(id) {
     set({ isDeleting: true });
     try {
-      await deleteBrand(id);
+      await BrandsApi.delete(id);
       set({ isDeleting: false });
       await get().fetch(get()._params);
     } catch (error) {
