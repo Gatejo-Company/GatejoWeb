@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +12,8 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useBrands, useCreateBrand, useUpdateBrand, useDeleteBrand } from '@/features/brands/queries';
+import { useBrandStore } from '@/features/brands/store';
+import { useToast } from '@/components/ui/Toast';
 import type { Brand } from '@/types/models';
 
 const schema = z.object({
@@ -32,14 +33,16 @@ const columns: Column<Brand>[] = [
 export function BrandsPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Brand | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data, isLoading } = useBrands({ page: pagination.page, pageSize: pagination.pageSize });
-  const createMutation = useCreateBrand();
-  const updateMutation = useUpdateBrand();
-  const deleteMutation = useDeleteBrand();
+  const { data, isLoading, isSaving, isDeleting, fetch, create, update, delete: deleteBrand } = useBrandStore();
+
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
 
   const {
     register,
@@ -53,12 +56,18 @@ export function BrandsPage() {
   const closeForm = () => { setIsFormOpen(false); setEditingItem(null); };
 
   const onSubmit = async (values: FormValues) => {
-    if (editingItem) {
-      await updateMutation.mutateAsync({ id: editingItem.id, body: values });
-    } else {
-      await createMutation.mutateAsync(values);
+    try {
+      if (editingItem) {
+        await update(editingItem.id, values);
+        toast.success('Brand updated');
+      } else {
+        await create(values);
+        toast.success('Brand created');
+      }
+      closeForm();
+    } catch {
+      toast.error(editingItem ? 'Failed to update brand' : 'Failed to create brand');
     }
-    closeForm();
   };
 
   const handleDelete = (id: number) => setDeletingId(id);
@@ -71,14 +80,14 @@ export function BrandsPage() {
           render: (item) => (
             <div className="flex gap-2">
               <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Editar</Button>
-              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
+              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={isDeleting}>Eliminar</Button>
             </div>
           ),
         },
       ]
     : [];
 
-  const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isPending = isSaving || isSubmitting;
 
   return (
     <PageLayout title="Marcas" action={isAdmin() ? <Button onClick={openCreate}>+ Nueva Marca</Button> : undefined}>
@@ -104,7 +113,17 @@ export function BrandsPage() {
         title="Eliminar marca"
         message="¿Estás seguro de que deseas eliminar esta marca?"
         confirmLabel="Eliminar"
-        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onConfirm={async () => {
+          if (deletingId !== null) {
+            try {
+              await deleteBrand(deletingId);
+              toast.success('Brand deleted');
+            } catch {
+              toast.error('Failed to delete brand');
+            }
+          }
+          setDeletingId(null);
+        }}
         onCancel={() => setDeletingId(null)}
       />
     </PageLayout>

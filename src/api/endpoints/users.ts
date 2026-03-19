@@ -8,34 +8,34 @@ export interface UpdateUserRequest {
   roleId: number;
 }
 
-export const usersApi = {
-  list: async (params?: PaginationParams): Promise<PaginatedData<User>> => {
+export class UsersApi {
+  static async list(params?: PaginationParams): Promise<PaginatedData<User>> {
     const response = await client.get<PaginatedData<User>>('/Users', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<User> => {
+  static async get(id: number): Promise<User> {
     const response = await client.get<User>(`/Users/${id}`);
     return response.data;
-  },
+  }
 
-  update: async (id: number, body: UpdateUserRequest): Promise<User> => {
+  static async update(id: number, body: UpdateUserRequest): Promise<User> {
     const response = await client.put<User>(`/Users/${id}`, body);
     return response.data;
-  },
+  }
 
-  patchActive: async (id: number, active: boolean): Promise<void> => {
+  static async patchActive(id: number, active: boolean): Promise<void> {
     await client.patch(`/Users/${id}/active`, { active });
-  },
+  }
 
-  delete: async (id: number): Promise<void> => {
+  static async delete(id: number): Promise<void> {
     await client.delete(`/Users/${id}`);
-  },
-};
+  }
+}
 
-export const rolesApi = {
-  list: async (): Promise<PaginatedData<Role>> => {
+export class RolesApi {
+  static async list(): Promise<PaginatedData<Role>> {
     const response = await client.get<PaginatedData<Role>>('/Roles', { params: { pageSize: 50 } });
     return response.data;
-  },
-};
+  }
+}

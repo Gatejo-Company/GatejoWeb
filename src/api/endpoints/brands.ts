@@ -6,28 +6,28 @@ export interface BrandRequest {
   name: string;
 }
 
-export const brandsApi = {
-  list: async (params?: PaginationParams): Promise<PaginatedData<Brand>> => {
+export class BrandsApi {
+  static async list(params?: PaginationParams): Promise<PaginatedData<Brand>> {
     const response = await client.get<PaginatedData<Brand>>('/Brands', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<Brand> => {
+  static async get(id: number): Promise<Brand> {
     const response = await client.get<Brand>(`/Brands/${id}`);
     return response.data;
-  },
+  }
 
-  create: async (body: BrandRequest): Promise<Brand> => {
+  static async create(body: BrandRequest): Promise<Brand> {
     const response = await client.post<Brand>('/Brands', body);
     return response.data;
-  },
+  }
 
-  update: async (id: number, body: BrandRequest): Promise<Brand> => {
+  static async update(id: number, body: BrandRequest): Promise<Brand> {
     const response = await client.put<Brand>(`/Brands/${id}`, body);
     return response.data;
-  },
+  }
 
-  delete: async (id: number): Promise<void> => {
+  static async delete(id: number): Promise<void> {
     await client.delete(`/Brands/${id}`);
-  },
-};
+  }
+}

@@ -1,16 +1,19 @@
+import { useEffect } from 'react';
 import { StatCard, Card } from '@/components/ui/Card';
-import { useDashboardStats } from '@/features/dashboard/useQueries';
+import { useDashboardStore } from '@/features/dashboard/store';
 import { RecentSalesTable } from '@/features/dashboard/RecentSalesTable';
 import { RecentPurchasesTable } from '@/features/dashboard/RecentPurchasesTable';
 import { CubeIcon, DocumentTextIcon, ShoppingCartIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 export function DashboardPage() {
-  const { products, recentSales, recentPurchases, pendingCredit } = useDashboardStats();
+  const {
+    totalProducts, totalSales, totalPurchases, pendingCreditCount,
+    recentSales, recentPurchases, isLoading, fetch,
+  } = useDashboardStore();
 
-  const totalProducts = products.data?.totalCount ?? 0;
-  const totalSales = recentSales.data?.totalCount ?? 0;
-  const totalPurchases = recentPurchases.data?.totalCount ?? 0;
-  const pendingCreditCount = pendingCredit.data?.totalCount ?? 0;
+  useEffect(() => {
+    void fetch();
+  }, []);
 
   return (
     <div>
@@ -21,28 +24,28 @@ export function DashboardPage() {
           label="Total de Productos"
           value={totalProducts}
           icon={<CubeIcon className="w-6 h-6 text-amber-500" />}
-          isLoading={products.isLoading}
+          isLoading={isLoading}
           align='center'
         />
         <StatCard
           label="Facturas de Venta"
           value={totalSales}
           icon={<DocumentTextIcon className="w-6 h-6 text-teal-500" />}
-          isLoading={recentSales.isLoading}
+          isLoading={isLoading}
           align='center'
         />
         <StatCard
           label="Facturas de Compra"
           value={totalPurchases}
           icon={<ShoppingCartIcon className="w-6 h-6 text-orange-500" />}
-          isLoading={recentPurchases.isLoading}
+          isLoading={isLoading}
           align='center'
         />
         <StatCard
           label="Crédito Pendiente"
           value={pendingCreditCount}
           icon={<ClockIcon className="w-6 h-6 text-rose-500" />}
-          isLoading={pendingCredit.isLoading}
+          isLoading={isLoading}
           align='center'
         />
       </div>
@@ -51,16 +54,16 @@ export function DashboardPage() {
         <Card className="p-6">
           <h2 className="text-base font-semibold text-gray-900">Ventas Recientes</h2>
           <RecentSalesTable
-            invoices={recentSales.data?.items ?? []}
-            isLoading={recentSales.isLoading}
+            invoices={recentSales}
+            isLoading={isLoading}
           />
         </Card>
 
         <Card className="p-6">
           <h2 className="text-base font-semibold text-gray-900">Compras Recientes</h2>
           <RecentPurchasesTable
-            invoices={recentPurchases.data?.items ?? []}
-            isLoading={recentPurchases.isLoading}
+            invoices={recentPurchases}
+            isLoading={isLoading}
           />
         </Card>
       </div>

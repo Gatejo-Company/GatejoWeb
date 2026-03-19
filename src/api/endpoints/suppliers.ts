@@ -9,28 +9,28 @@ export interface SupplierRequest {
   notes?: string;
 }
 
-export const suppliersApi = {
-  list: async (params?: PaginationParams): Promise<PaginatedData<Supplier>> => {
+export class SuppliersApi {
+  static async list(params?: PaginationParams): Promise<PaginatedData<Supplier>> {
     const response = await client.get<PaginatedData<Supplier>>('/Suppliers', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<Supplier> => {
+  static async get(id: number): Promise<Supplier> {
     const response = await client.get<Supplier>(`/Suppliers/${id}`);
     return response.data;
-  },
+  }
 
-  create: async (body: SupplierRequest): Promise<Supplier> => {
+  static async create(body: SupplierRequest): Promise<Supplier> {
     const response = await client.post<Supplier>('/Suppliers', body);
     return response.data;
-  },
+  }
 
-  update: async (id: number, body: SupplierRequest): Promise<Supplier> => {
+  static async update(id: number, body: SupplierRequest): Promise<Supplier> {
     const response = await client.put<Supplier>(`/Suppliers/${id}`, body);
     return response.data;
-  },
+  }
 
-  delete: async (id: number): Promise<void> => {
+  static async delete(id: number): Promise<void> {
     await client.delete(`/Suppliers/${id}`);
-  },
-};
+  }
+}

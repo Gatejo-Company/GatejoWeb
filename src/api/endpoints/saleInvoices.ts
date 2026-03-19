@@ -22,37 +22,37 @@ export interface CreateSaleInvoiceRequest {
   items: SaleItemRequest[];
 }
 
-export const saleInvoicesApi = {
-  list: async (params?: SaleInvoiceListParams): Promise<PaginatedData<SaleInvoice>> => {
+export class SaleInvoicesApi {
+  static async list(params?: SaleInvoiceListParams): Promise<PaginatedData<SaleInvoice>> {
     const response = await client.get<PaginatedData<SaleInvoice>>('/sale-invoices', { params });
     return response.data;
-  },
+  }
 
-  getPendingCredit: async (params?: PaginationParams): Promise<PaginatedData<SaleInvoice>> => {
+  static async getPendingCredit(params?: PaginationParams): Promise<PaginatedData<SaleInvoice>> {
     const response = await client.get<PaginatedData<SaleInvoice>>('/sale-invoices/pending-credit', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<SaleInvoice> => {
+  static async get(id: number): Promise<SaleInvoice> {
     const response = await client.get<SaleInvoice>(`/sale-invoices/${id}`);
     return response.data;
-  },
+  }
 
-  create: async (body: CreateSaleInvoiceRequest): Promise<SaleInvoice> => {
+  static async create(body: CreateSaleInvoiceRequest): Promise<SaleInvoice> {
     const response = await client.post<SaleInvoice>('/sale-invoices', body);
     return response.data;
-  },
+  }
 
-  pay: async (id: number): Promise<void> => {
+  static async pay(id: number): Promise<void> {
     await client.patch(`/sale-invoices/${id}/pay`);
-  },
+  }
 
-  reverse: async (id: number): Promise<SaleInvoice> => {
+  static async reverse(id: number): Promise<SaleInvoice> {
     const response = await client.post<SaleInvoice>(`/sale-invoices/${id}/reverse`);
     return response.data;
-  },
+  }
 
-  delete: async (id: number): Promise<void> => {
+  static async delete(id: number): Promise<void> {
     await client.delete(`/sale-invoices/${id}`);
-  },
-};
+  }
+}

@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useFieldArray } from 'react-hook-form';
-import { useQuery } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
@@ -16,14 +15,10 @@ import { Badge } from '@/components/ui/Badge';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { suppliersApi } from '@/api/endpoints/suppliers';
-import { productsApi } from '@/api/endpoints/products';
-import {
-  usePurchaseInvoices,
-  useCreatePurchaseInvoice,
-  usePatchPayment,
-  useDeletePurchaseInvoice,
-} from '@/features/purchase-invoices/queries';
+import { useSupplierStore } from '@/features/suppliers/store';
+import { useProductStore } from '@/features/products/store';
+import { usePurchaseInvoiceStore } from '@/features/purchase-invoices/store';
+import { useToast } from '@/components/ui/Toast';
 import { CheckCircleIcon, ClockIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import type { PurchaseInvoice } from '@/types/models';
 import type { AppError } from '@/api/types';
@@ -50,9 +45,15 @@ function formatCurrency(n: number) {
 }
 
 function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
-  const suppliers = useQuery({ queryKey: ['suppliers', 'all'], queryFn: () => suppliersApi.list({ pageSize: 200 }), staleTime: Infinity });
-  const products = useQuery({ queryKey: ['products', 'all-for-select'], queryFn: () => productsApi.list({ pageSize: 200, active: true }), staleTime: 1000 * 60 * 5 });
-  const createMutation = useCreatePurchaseInvoice();
+  const toast = useToast();
+  const { selectItems: suppliers, fetchSelectItems: fetchSuppliers } = useSupplierStore();
+  const { selectItems: products, fetchSelectItems: fetchProducts } = useProductStore();
+  const { create, isCreating } = usePurchaseInvoiceStore();
+
+  useEffect(() => {
+    void fetchSuppliers();
+    void fetchProducts();
+  }, []);
 
   const {
     register, handleSubmit, control, watch, setValue, setError,
@@ -68,7 +69,8 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await createMutation.mutateAsync({ supplierId: values.supplierId, date: values.date, notes: values.notes, items: values.items });
+      await create({ supplierId: values.supplierId, date: values.date, notes: values.notes, items: values.items });
+      toast.success('Purchase invoice created');
       onClose();
     } catch (err) {
       const appError = err as AppError;
@@ -84,7 +86,7 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
           <FormField label="Proveedor" htmlFor="pi-supplier" error={errors.supplierId?.message} required>
             <select id="pi-supplier" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200" {...register('supplierId', { valueAsNumber: true })}>
               <option value={0}>Seleccionar proveedor</option>
-              {suppliers.data?.items.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </FormField>
           <FormField label="Fecha" htmlFor="pi-date" error={errors.date?.message} required>
@@ -105,12 +107,12 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
                   <select className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-200"
                     {...register(`items.${index}.productId`, {
                       valueAsNumber: true, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
-                        const product = products.data?.items.find((p) => p.id === Number(e.target.value));
+                        const product = products.find((p) => p.id === Number(e.target.value));
                         if (product) setValue(`items.${index}.unitPrice`, product.price);
                       }
                     })}>
                     <option value={0}>Seleccionar producto</option>
-                    {products.data?.items.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
                 <div className="col-span-2"><label className="text-xs text-gray-500 mb-1 block">Cant.</label><Input type="number" min="1" step="1" {...register(`items.${index}.quantity`, { valueAsNumber: true })} /></div>
@@ -126,7 +128,7 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
         </div>
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" isLoading={createMutation.isPending || isSubmitting}>Crear Factura</Button>
+          <Button type="submit" isLoading={isCreating || isSubmitting}>Crear Factura</Button>
         </div>
       </form>
     </Modal>
@@ -134,8 +136,10 @@ function PurchaseInvoiceForm({ onClose }: { onClose: () => void }) {
 }
 
 function PaymentModal({ invoice, onClose }: { invoice: PurchaseInvoice; onClose: () => void }) {
+  const toast = useToast();
   const [paid, setPaid] = useState(String(invoice.paid));
-  const patchMutation = usePatchPayment();
+  const { patchPayment, isPatchingPayment } = usePurchaseInvoiceStore();
+
   return (
     <Modal isOpen onClose={onClose} title="Actualizar Pago">
       <div className="space-y-4">
@@ -145,7 +149,15 @@ function PaymentModal({ invoice, onClose }: { invoice: PurchaseInvoice; onClose:
         </FormField>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button isLoading={patchMutation.isPending} onClick={async () => { await patchMutation.mutateAsync({ id: invoice.id, paid: Number(paid) }); onClose(); }}>Actualizar</Button>
+          <Button isLoading={isPatchingPayment} onClick={async () => {
+            try {
+              await patchPayment(invoice.id, Number(paid));
+              toast.success('Payment updated');
+              onClose();
+            } catch {
+              toast.error('Failed to update payment');
+            }
+          }}>Actualizar</Button>
         </div>
       </div>
     </Modal>
@@ -155,12 +167,16 @@ function PaymentModal({ invoice, onClose }: { invoice: PurchaseInvoice; onClose:
 export function PurchaseInvoicesPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [payingInvoice, setPayingInvoice] = useState<PurchaseInvoice | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data, isLoading } = usePurchaseInvoices({ page: pagination.page, pageSize: pagination.pageSize });
-  const deleteMutation = useDeletePurchaseInvoice();
+  const { data, isLoading, isDeleting, fetch, delete: deletePurchaseInvoice } = usePurchaseInvoiceStore();
+
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
 
   const columns: Column<PurchaseInvoice>[] = [
     { key: 'id', header: 'ID', render: (inv) => <span className="font-mono text-xs text-gray-400">#{inv.id}</span> },
@@ -179,7 +195,7 @@ export function PurchaseInvoicesPage() {
       key: '_actions', header: 'Acciones', render: (inv: PurchaseInvoice) => (
         <div className="flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => setPayingInvoice(inv)}>Pago</Button>
-          <Button size="sm" variant="danger" onClick={() => setDeletingId(inv.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
+          <Button size="sm" variant="danger" onClick={() => setDeletingId(inv.id)} isLoading={isDeleting}>Eliminar</Button>
         </div>
       ),
     } satisfies Column<PurchaseInvoice>] : []),
@@ -196,7 +212,17 @@ export function PurchaseInvoicesPage() {
         title="Eliminar factura de compra"
         message="¿Estás seguro de que deseas eliminar esta factura?"
         confirmLabel="Eliminar"
-        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onConfirm={async () => {
+          if (deletingId !== null) {
+            try {
+              await deletePurchaseInvoice(deletingId);
+              toast.success('Purchase invoice deleted');
+            } catch {
+              toast.error('Failed to delete invoice');
+            }
+          }
+          setDeletingId(null);
+        }}
         onCancel={() => setDeletingId(null)}
       />
     </PageLayout>

@@ -17,25 +17,25 @@ export interface RegisterPayload {
   fullName: string;
 }
 
-export const authApi = {
-  login: async (data: LoginPayload): Promise<AuthTokenResponse> => {
+export class AuthApi {
+  static async login(data: LoginPayload): Promise<AuthTokenResponse> {
     const response = await client.post<AuthTokenResponse>('/Auth/login', data);
     return response.data;
-  },
+  }
 
-  refresh: async (refreshToken: string): Promise<AuthTokenResponse> => {
+  static async refresh(token: string): Promise<AuthTokenResponse> {
     const response = await client.post<AuthTokenResponse>('/Auth/refresh', {
       token: getAccessToken() ?? '',
-      refreshToken,
+      refreshToken: token,
     });
     return response.data;
-  },
+  }
 
-  logout: async (): Promise<void> => {
+  static async logout(): Promise<void> {
     await client.post('/Auth/logout');
-  },
+  }
 
-  register: async (data: RegisterPayload): Promise<void> => {
+  static async register(data: RegisterPayload): Promise<void> {
     await client.post('/Auth/register', data);
-  },
-};
+  }
+}

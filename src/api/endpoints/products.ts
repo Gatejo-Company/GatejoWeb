@@ -31,47 +31,47 @@ export interface UpdatePriceRequest {
   reason?: string;
 }
 
-export const productsApi = {
-  list: async (params?: ProductListParams): Promise<PaginatedData<Product>> => {
+export class ProductsApi {
+  static async list(params?: ProductListParams): Promise<PaginatedData<Product>> {
     const response = await client.get<PaginatedData<Product>>('/Products', { params });
     return response.data;
-  },
+  }
 
-  get: async (id: number): Promise<Product> => {
+  static async get(id: number): Promise<Product> {
     const response = await client.get<Product>(`/Products/${id}`);
     return response.data;
-  },
+  }
 
-  create: async (body: CreateProductRequest): Promise<Product> => {
+  static async create(body: CreateProductRequest): Promise<Product> {
     const response = await client.post<Product>('/Products', body);
     return response.data;
-  },
+  }
 
-  update: async (id: number, body: UpdateProductRequest): Promise<Product> => {
+  static async update(id: number, body: UpdateProductRequest): Promise<Product> {
     const response = await client.put<Product>(`/Products/${id}`, body);
     return response.data;
-  },
+  }
 
-  delete: async (id: number): Promise<void> => {
+  static async delete(id: number): Promise<void> {
     await client.delete(`/Products/${id}`);
-  },
+  }
 
-  patchPrice: async (id: number, body: UpdatePriceRequest): Promise<Product> => {
+  static async patchPrice(id: number, body: UpdatePriceRequest): Promise<Product> {
     const response = await client.patch<Product>(`/Products/${id}/price`, body);
     return response.data;
-  },
+  }
 
-  patchActive: async (id: number, active: boolean): Promise<void> => {
+  static async patchActive(id: number, active: boolean): Promise<void> {
     await client.patch(`/Products/${id}/active`, { active });
-  },
+  }
 
-  getPriceHistory: async (id: number, params?: PaginationParams): Promise<PaginatedData<PriceHistory>> => {
+  static async getPriceHistory(id: number, params?: PaginationParams): Promise<PaginatedData<PriceHistory>> {
     const response = await client.get<PaginatedData<PriceHistory>>(`/Products/${id}/price-history`, { params });
     return response.data;
-  },
+  }
 
-  getStock: async (id: number): Promise<ProductStock> => {
+  static async getStock(id: number): Promise<ProductStock> {
     const response = await client.get<ProductStock>(`/Products/${id}/stock`);
     return response.data;
-  },
-};
+  }
+}

@@ -1,13 +1,13 @@
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery, useMutation } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { useAuth } from '@/features/auth/AuthContext';
-import { usersApi } from '@/api/endpoints/users';
+import { useUserStore } from '@/features/users/store';
 import { useToast } from '@/components/ui/Toast';
 import type { AppError } from '@/api/types';
 
@@ -20,22 +20,14 @@ type FormValues = z.infer<typeof schema>;
 export function ProfilePage() {
   const { user } = useAuth();
   const toast = useToast();
+  const { detail, isSaving, fetchDetail, update } = useUserStore();
+  const [loaded, setLoaded] = useState(false);
 
-  const { data: userData } = useQuery({
-    queryKey: ['users', 'me', user?.id],
-    queryFn: () => usersApi.get(user!.id),
-    enabled: !!user,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (values: FormValues) => {
-      if (!user || !userData) throw new Error('Not loaded');
-      return usersApi.update(user.id, { name: values.name, email: values.email, roleId: userData.roleId });
-    },
-    onSuccess: () => toast.success('Perfil actualizado'),
-    onError: () => toast.error('Error al actualizar el perfil'),
-  });
+  useEffect(() => {
+    if (user) {
+      void fetchDetail(user.id).then(() => setLoaded(true));
+    }
+  }, [user?.id]);
 
   const {
     register, handleSubmit, setError,
@@ -46,8 +38,10 @@ export function ProfilePage() {
   });
 
   const onSubmit = async (values: FormValues) => {
+    if (!user || !detail) throw new Error('Not loaded');
     try {
-      await updateMutation.mutateAsync(values);
+      await update(user.id, { name: values.name, email: values.email, roleId: detail.roleId });
+      toast.success('Perfil actualizado');
     } catch (err) {
       const appError = err as AppError;
       setError('root', { message: appError?.detail ?? 'Error al actualizar el perfil' });
@@ -70,7 +64,7 @@ export function ProfilePage() {
               <Input id="prof-email" type="email" error={!!errors.email} {...register('email')} />
             </FormField>
             <div className="flex justify-end pt-2">
-              <Button type="submit" isLoading={updateMutation.isPending || isSubmitting} disabled={!userData}>
+              <Button type="submit" isLoading={isSaving || isSubmitting} disabled={!loaded}>
                 Guardar Cambios
               </Button>
             </div>

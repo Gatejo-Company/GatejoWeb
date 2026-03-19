@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
@@ -9,7 +9,8 @@ import { Tooltip } from '@/components/ui/Tooltip';
 import { usePagination } from '@/hooks/usePagination';
 import { CheckCircleIcon, ClockIcon, BanknotesIcon } from '@heroicons/react/20/solid';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useSaleInvoices, useReverseSaleInvoice, usePaySaleInvoice } from '@/features/sale-invoices/queries';
+import { useSaleInvoiceStore } from '@/features/sale-invoices/store';
+import { useToast } from '@/components/ui/Toast';
 import { SaleInvoiceForm } from '@/features/sale-invoices/SaleInvoiceForm';
 import { SaleInvoiceDetailModal } from '@/features/sale-invoices/SaleInvoiceDetailModal';
 import type { SaleInvoice } from '@/types/models';
@@ -22,23 +23,43 @@ function formatCurrency(n: number) {
 export function SaleInvoicesPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<SaleInvoice | null>(null);
   const [reversingInvoice, setReversingInvoice] = useState<SaleInvoice | null>(null);
   const [filterOnCredit, setFilterOnCredit] = useState('');
   const [filterPaid, setFilterPaid] = useState('');
 
-  const { data, isLoading } = useSaleInvoices({
-    page: pagination.page,
-    pageSize: pagination.pageSize,
-    onCredit: filterOnCredit === '' ? undefined : filterOnCredit === 'true',
-    paid: filterPaid === '' ? undefined : filterPaid === 'true',
-  });
+  const { data, isLoading, isPaying, isReversing, fetch, pay, reverse } = useSaleInvoiceStore();
 
-  const reverseMutation = useReverseSaleInvoice();
-  const payMutation = usePaySaleInvoice();
+  useEffect(() => {
+    void fetch({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      onCredit: filterOnCredit === '' ? undefined : filterOnCredit === 'true',
+      paid: filterPaid === '' ? undefined : filterPaid === 'true',
+    });
+  }, [pagination.page, pagination.pageSize, filterOnCredit, filterPaid]);
 
   const handleReverse = (inv: SaleInvoice) => setReversingInvoice(inv);
+
+  const handlePay = async (id: number) => {
+    try {
+      await pay(id);
+      toast.success('Invoice marked as paid');
+    } catch {
+      toast.error('Failed to mark as paid');
+    }
+  };
+
+  const handleReverseConfirm = async (id: number) => {
+    try {
+      await reverse(id);
+      toast.success('Factura de anulación generada');
+    } catch {
+      toast.error('Error al anular la factura');
+    }
+  };
 
   const columns: Column<SaleInvoice>[] = [
     { key: 'id', header: 'ID', render: (inv) => <span className="font-mono text-xs text-gray-400">#{inv.id}</span> },
@@ -76,12 +97,12 @@ export function SaleInvoicesPage() {
             render: (inv: SaleInvoice) => (
               <div className="flex gap-2">
                 {inv.onCredit && !inv.paidAt && (
-                  <Button size="sm" variant="secondary" onClick={() => payMutation.mutate(inv.id)} isLoading={payMutation.isPending}>
+                  <Button size="sm" variant="secondary" onClick={() => void handlePay(inv.id)} isLoading={isPaying}>
                     Marcar Pagado
                   </Button>
                 )}
                 {!inv.reversed && (
-                  <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={reverseMutation.isPending}>
+                  <Button size="sm" variant="danger" onClick={() => handleReverse(inv)} isLoading={isReversing}>
                     Anular
                   </Button>
                 )}
@@ -148,7 +169,10 @@ export function SaleInvoicesPage() {
         title="Anular factura"
         message={`¿Generar factura de anulación para la factura #${reversingInvoice?.id}?`}
         confirmLabel="Anular"
-        onConfirm={() => { if (reversingInvoice) reverseMutation.mutate(reversingInvoice.id); setReversingInvoice(null); }}
+        onConfirm={async () => {
+          if (reversingInvoice) await handleReverseConfirm(reversingInvoice.id);
+          setReversingInvoice(null);
+        }}
         onCancel={() => setReversingInvoice(null)}
       />
     </PageLayout>

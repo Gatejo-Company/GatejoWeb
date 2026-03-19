@@ -1,14 +1,15 @@
+import { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
-import { productsApi } from '@/api/endpoints/products';
-import { useCreateSaleInvoice } from './queries';
+import { useToast } from '@/components/ui/Toast';
+import { useProductStore } from '@/features/products/store';
+import { useSaleInvoiceStore } from './store';
 import type { AppError } from '@/api/types';
 
 const schema = z.object({
@@ -37,13 +38,13 @@ function formatCurrency(n: number) {
 }
 
 export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
-  const products = useQuery({
-    queryKey: ['products', 'all-for-select'],
-    queryFn: () => productsApi.list({ pageSize: 200, active: true }),
-    staleTime: 1000 * 60 * 5,
-  });
+  const toast = useToast();
+  const { selectItems: products, fetchSelectItems: fetchProducts } = useProductStore();
+  const { create, isCreating } = useSaleInvoiceStore();
 
-  const createMutation = useCreateSaleInvoice();
+  useEffect(() => {
+    void fetchProducts();
+  }, []);
 
   const {
     register,
@@ -73,7 +74,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
   }, 0);
 
   const handleProductChange = (index: number, productId: number) => {
-    const product = products.data?.items.find((p) => p.id === productId);
+    const product = products.find((p) => p.id === productId);
     if (product) {
       setValue(`items.${index}.unitPrice`, product.price);
     }
@@ -81,7 +82,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await createMutation.mutateAsync({
+      await create({
         date: values.date,
         onCredit: values.onCredit,
         notes: values.notes,
@@ -91,6 +92,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
           unitPrice: item.unitPrice
         }))
       });
+      toast.success('Sale invoice created');
       onClose();
     } catch (err) {
       const appError = err as AppError;
@@ -152,7 +154,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
                     })}
                   >
                     <option value={0}>Seleccionar producto</option>
-                    {products.data?.items.map((p) => (
+                    {products.map((p) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
@@ -208,7 +210,7 @@ export function SaleInvoiceForm({ onClose }: SaleInvoiceFormProps) {
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" isLoading={createMutation.isPending || isSubmitting}>
+          <Button type="submit" isLoading={isCreating || isSubmitting}>
             Crear Factura
           </Button>
         </div>

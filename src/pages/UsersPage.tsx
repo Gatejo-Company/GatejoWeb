@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery, useMutation } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { Pagination } from '@/components/data/Pagination';
@@ -14,8 +13,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { usersApi, rolesApi } from '@/api/endpoints/users';
-import { queryClient } from '@/lib/queryClient';
+import { useUserStore } from '@/features/users/store';
 import { useToast } from '@/components/ui/Toast';
 import type { User } from '@/types/models';
 import type { AppError } from '@/api/types';
@@ -31,17 +29,11 @@ function formatDate(s: string) { return new Date(s).toLocaleDateString(); }
 
 function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
   const toast = useToast();
-  const roles = useQuery({ queryKey: ['roles'], queryFn: () => rolesApi.list(), staleTime: Infinity });
+  const { roles, isSaving, fetchRoles, update } = useUserStore();
 
-  const updateMutation = useMutation({
-    mutationFn: (body: FormValues) => usersApi.update(user.id, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Usuario actualizado');
-      onClose();
-    },
-    onError: () => toast.error('Error al actualizar el usuario'),
-  });
+  useEffect(() => {
+    void fetchRoles();
+  }, []);
 
   const {
     register, handleSubmit, setError,
@@ -53,7 +45,9 @@ function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await updateMutation.mutateAsync(values);
+      await update(user.id, values);
+      toast.success('Usuario actualizado');
+      onClose();
     } catch (err) {
       const appError = err as AppError;
       setError('root', { message: appError?.detail ?? 'Error' });
@@ -73,12 +67,12 @@ function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
         <FormField label="Rol" htmlFor="u-role" error={errors.roleId?.message} required>
           <select id="u-role" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200" {...register('roleId', { valueAsNumber: true })}>
             <option value={0}>Seleccionar rol</option>
-            {roles.data?.items.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+            {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
           </select>
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" isLoading={updateMutation.isPending || isSubmitting}>Guardar Cambios</Button>
+          <Button type="submit" isLoading={isSaving || isSubmitting}>Guardar Cambios</Button>
         </div>
       </form>
     </Modal>
@@ -88,32 +82,24 @@ function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
 export function UsersPage() {
   const { user: currentUser } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const toast = useToast();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['users', 'list', { page: pagination.page, pageSize: pagination.pageSize }],
-    queryFn: () => usersApi.list({ page: pagination.page, pageSize: pagination.pageSize }),
-  });
+  const { data, isLoading, isPatching, isDeleting, fetch, patchActive, delete: deleteUser } = useUserStore();
 
-  const patchActiveMutation = useMutation({
-    mutationFn: ({ id, active }: { id: number; active: boolean }) => usersApi.patchActive(id, active),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['users'] });
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
+
+  const handlePatchActive = async (id: number, active: boolean) => {
+    try {
+      await patchActive(id, active);
       toast.success('Estado del usuario actualizado');
-    },
-    onError: () => toast.error('Error al actualizar el estado del usuario'),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => usersApi.delete(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Usuario eliminado');
-    },
-    onError: () => toast.error('Error al eliminar el usuario'),
-  });
+    } catch {
+      toast.error('Error al actualizar el estado del usuario');
+    }
+  };
 
   const columns: Column<User>[] = [
     { key: 'id', header: 'ID', render: (u) => <span className="font-mono text-xs text-gray-400">#{u.id}</span> },
@@ -129,8 +115,8 @@ export function UsersPage() {
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => patchActiveMutation.mutate({ id: u.id, active: !u.active })}
-            isLoading={patchActiveMutation.isPending}
+            onClick={() => void handlePatchActive(u.id, !u.active)}
+            isLoading={isPatching}
           >
             {u.active ? 'Desactivar' : 'Activar'}
           </Button>
@@ -139,7 +125,7 @@ export function UsersPage() {
               size="sm"
               variant="danger"
               onClick={() => setDeletingId(u.id)}
-              isLoading={deleteMutation.isPending}
+              isLoading={isDeleting}
             >
               Eliminar
             </Button>
@@ -159,7 +145,17 @@ export function UsersPage() {
         title="Eliminar usuario"
         message="¿Estás seguro de que deseas eliminar este usuario?"
         confirmLabel="Eliminar"
-        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onConfirm={async () => {
+          if (deletingId !== null) {
+            try {
+              await deleteUser(deletingId);
+              toast.success('Usuario eliminado');
+            } catch {
+              toast.error('Error al eliminar el usuario');
+            }
+          }
+          setDeletingId(null);
+        }}
         onCancel={() => setDeletingId(null)}
       />
     </PageLayout>
