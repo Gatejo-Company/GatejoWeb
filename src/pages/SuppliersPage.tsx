@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +12,8 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { usePagination } from '@/hooks/usePagination';
 import { useAuth } from '@/features/auth/AuthContext';
-import { useSuppliers, useCreateSupplier, useUpdateSupplier, useDeleteSupplier } from '@/features/suppliers/queries';
+import { useSupplierStore } from '@/features/suppliers/store';
+import { useToast } from '@/components/ui/Toast';
 import type { Supplier } from '@/types/models';
 
 const schema = z.object({
@@ -33,14 +34,16 @@ const columns: Column<Supplier>[] = [
 export function SuppliersPage() {
   const { isAdmin } = useAuth();
   const pagination = usePagination();
+  const toast = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Supplier | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data, isLoading } = useSuppliers({ page: pagination.page, pageSize: pagination.pageSize });
-  const createMutation = useCreateSupplier();
-  const updateMutation = useUpdateSupplier();
-  const deleteMutation = useDeleteSupplier();
+  const { data, isLoading, isSaving, isDeleting, fetch, create, update, delete: deleteSupplier } = useSupplierStore();
+
+  useEffect(() => {
+    void fetch({ page: pagination.page, pageSize: pagination.pageSize });
+  }, [pagination.page, pagination.pageSize]);
 
   const {
     register,
@@ -59,12 +62,18 @@ export function SuppliersPage() {
 
   const onSubmit = async (values: FormValues) => {
     const body = { name: values.name, phone: values.phone || undefined, email: values.email || undefined, notes: values.notes || undefined };
-    if (editingItem) {
-      await updateMutation.mutateAsync({ id: editingItem.id, body });
-    } else {
-      await createMutation.mutateAsync(body);
+    try {
+      if (editingItem) {
+        await update(editingItem.id, body);
+        toast.success('Supplier updated');
+      } else {
+        await create(body);
+        toast.success('Supplier created');
+      }
+      closeForm();
+    } catch {
+      toast.error(editingItem ? 'Failed to update supplier' : 'Failed to create supplier');
     }
-    closeForm();
   };
 
   const handleDelete = (id: number) => setDeletingId(id);
@@ -77,14 +86,14 @@ export function SuppliersPage() {
           render: (item) => (
             <div className="flex gap-2">
               <Button size="sm" variant="secondary" onClick={() => openEdit(item)}>Editar</Button>
-              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={deleteMutation.isPending}>Eliminar</Button>
+              <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)} isLoading={isDeleting}>Eliminar</Button>
             </div>
           ),
         },
       ]
     : [];
 
-  const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
+  const isPending = isSaving || isSubmitting;
 
   return (
     <PageLayout title="Proveedores" action={isAdmin() ? <Button onClick={openCreate}>+ Nuevo Proveedor</Button> : undefined}>
@@ -121,7 +130,17 @@ export function SuppliersPage() {
         title="Eliminar proveedor"
         message="¿Estás seguro de que deseas eliminar este proveedor?"
         confirmLabel="Eliminar"
-        onConfirm={() => { if (deletingId !== null) deleteMutation.mutate(deletingId); setDeletingId(null); }}
+        onConfirm={async () => {
+          if (deletingId !== null) {
+            try {
+              await deleteSupplier(deletingId);
+              toast.success('Supplier deleted');
+            } catch {
+              toast.error('Failed to delete supplier');
+            }
+          }
+          setDeletingId(null);
+        }}
         onCancel={() => setDeletingId(null)}
       />
     </PageLayout>
